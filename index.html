@@ -114,12 +114,12 @@
     <div id="auth-layer" onclick="authenticate()">
         <div class="face-id-scanner"></div>
         <p style="margin-top: 30px; font-weight: 200; letter-spacing: 2px;">SANDX GLOBAL ID</p>
-        <p style="color: var(--neon-green); font-size: 11px;">Verify Sovereignty (NFC/QR)</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Toque para Identificar (NFC/QR)</p>
     </div>
 
     <div class="header">
         <div class="dynamic-island" id="node-status">ORACLE: STANDBY</div>
-        <h2 id="user-greeting" style="font-weight: 300; margin: 0;">SandX CDD.</h2>
+        <h2 id="user-greeting" style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
     <div class="main-card">
@@ -135,21 +135,21 @@
             <div id="btc-price" style="font-size: 13px; margin-top: 5px; font-weight: bold;">₿ Loading...</div>
         </div>
         <div class="stat-box">
-            <small>Begin IA</small>
+            <small>STATUS IA</small>
             <div id="work-status" style="font-size: 15px; margin-top: 5px; font-weight: bold; color: #ff3b30;">OFFLINE</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
         > system: protocols initialized.<br>
-        > awaiting: manager_nfc_auth...<br>
+        > awaiting: identity_input...<br>
     </div>
 
     <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR TRABALHO</button>
 </div>
 
 <script>
-    /* 1. MOTOR GRÁFICO SOBERANO */
+    /* 1. MOTOR GRÁFICO */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -179,23 +179,41 @@
     }
     window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    /* 2. IA DE CÁLCULO AO VIVO E GESTÃO DE PONTO */
+    /* 2. MOTOR DE IDENTIDADE E CÁLCULO */
     let accumulatedBalance = 0.00;
     const gainPerHour = 38.50;
     const gainPerSecond = gainPerHour / 3600;
     let isWorking = false;
     let workTimer;
-    let brlToUsdRate = 5.60; 
+    let brlToUsdRate = 5.60;
+    let userName = "";
 
     async function fetchOracleData() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
             const data = await res.json();
-            const btcBrl = data.bitcoin.brl;
-            brlToUsdRate = btcBrl / data.bitcoin.usd;
-            document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
+            brlToUsdRate = data.bitcoin.brl / data.bitcoin.usd;
+            document.getElementById('btc-price').innerText = `R$ ${data.bitcoin.brl.toLocaleString('pt-BR')}`;
             document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
-        } catch (e) { console.log("Oracle Link Error"); }
+        } catch (e) { addLog("> system: oracle_link_offline"); }
+    }
+
+    function authenticate() {
+        // Agora o nome é solicitado dinamicamente via prompt ou busca
+        userName = prompt("Identifique-se, Soberano:");
+        
+        if (!userName || userName.trim() === "") {
+            userName = "Soberano";
+        }
+
+        addLog(`> nfc_auth: ${userName.toLowerCase()}_key_verified [OK]`);
+        document.getElementById('auth-layer').style.opacity = '0';
+        
+        setTimeout(() => {
+            document.getElementById('auth-layer').style.display = 'none';
+            document.getElementById('user-greeting').innerText = `Olá, ${userName}.`;
+            fetchOracleData();
+        }, 800);
     }
 
     function toggleWork() {
@@ -203,24 +221,22 @@
         const statusBox = document.getElementById('work-status');
         
         if (!isWorking) {
-            // INICIAR TRABALHO
             isWorking = true;
             btn.innerText = "PARAR / INTERVALO";
             btn.style.background = "#ff3b30";
             btn.style.color = "#fff";
             statusBox.innerText = "ONLINE";
             statusBox.style.color = "var(--neon-green)";
-            addLog(`> work_session: started_at_${new Date().toLocaleTimeString()}`);
+            addLog(`> work_session: active_for_${userName.toLowerCase()}`);
             workTimer = setInterval(runNeuralEngine, 1000);
         } else {
-            // PARAR / INTERVALO
             isWorking = false;
             btn.innerText = "RETORNAR AO TRABALHO";
             btn.style.background = "#fff";
             btn.style.color = "#000";
             statusBox.innerText = "PAUSADO";
             statusBox.style.color = "#ffcc00";
-            addLog(`> work_session: paused_at_${new Date().toLocaleTimeString()}`);
+            addLog(`> work_session: idle_mode_engaged`);
             clearInterval(workTimer);
         }
     }
@@ -228,7 +244,6 @@
     function runNeuralEngine() {
         accumulatedBalance += gainPerSecond;
         document.getElementById('total-val').innerText = `R$ ${accumulatedBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        
         const usdVal = accumulatedBalance / brlToUsdRate;
         document.getElementById('usd-val').innerText = `CONVERSÃO IA: $ ${usdVal.toFixed(2)} USD`;
     }
@@ -241,24 +256,11 @@
         consoleDiv.scrollTop = consoleDiv.scrollHeight;
     }
 
-    function authenticate() {
-        // Simula reconhecimento do QR Code do Gerente / NFC
-        addLog(`> nfc_auth: manager_key_verified [OK]`);
-        document.getElementById('auth-layer').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('auth-layer').style.display = 'none';
-            fetchOracleData();
-            document.getElementById('user-greeting').innerText = `Olá, Gabriel.`;
-        }, 800);
-    }
-
-    /* 3. SEGURANÇA E PROTOCOLO GOVERNO */
     document.addEventListener('keydown', e => {
         if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
     });
 
     setInterval(fetchOracleData, 60000);
 </script>
-
 </body>
 </html>
