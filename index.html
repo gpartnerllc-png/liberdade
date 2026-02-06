@@ -2,187 +2,173 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SandxCDD - OS</title>
-    <style>
-        :root {
-            --ios-blur: blur(25px);
-            --android-accent: #3DDC84;
-            --parallax-purple: #8A2BE2;
-        }
-        body {
-            background: #000; color: #fff;
-            font-family: -apple-system, "SF Pro Display", "Roboto", sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
-        }
-        .os-container {
-            width: 390px; height: 844px; /* iPhone 15/16 Pro Ratio */
-            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
-            border-radius: 50px; border: 8px solid #333;
-            position: relative; overflow: hidden;
-        }
-        .dynamic-island {
-            width: 125px; height: 36px; background: #000;
-            margin: 10px auto; border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: var(--android-accent); border: 1px solid #444;
-        }
-        .status-parallax {
-            font-size: 11px; text-align: center; color: var(--parallax-purple);
-            text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;
-        }
-        .card-salary {
-            margin: 20px; padding: 25px;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: var(--ios-blur);
-            border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .btn-liquidate {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            width: 80%; padding: 20px; background: #fff; color: #000;
-            border-radius: 35px; font-weight: bold; border: none; cursor: pointer;
-            box-shadow: 0 0 20px rgba(61, 220, 132, 0.4);
-        }
-    </style>
-</head>
-<body>
-    <div class="os-container">
-        <div class="dynamic-island">P2P ACTIVE</div>
-        <div class="status-parallax">Distributed Runtime</div>
-        
-        <div class="card-salary">
-            <h4 style="margin:0; opacity:0.6;">Saldos Soberanos</h4>
-            <h1 style="font-size: 40px; margin: 10px 0;">R$ 4.490,00</h1>
-            <div style="display: flex; justify-content: space-between;">
-                <span>₿ 0.00045</span>
-                <span style="color:var(--android-accent);">+1.250 TAR</span>
-            </div>
-        </div>
-
-        <div style="padding: 20px; font-size: 13px;">
-            <strong>Rede Parallax:</strong> 14 nós ativos (RTX 5090 Cluster)<br>
-            <strong>Latência:</strong> 12ms (RTT Profiling)<br>
-            <strong>Soberania:</strong> 100% - Sem Cloud Centralizada
-        </div>
-
-        <button class="btn-liquidate" onclick="alert('Liquidação via Sharding Parallax Concluída!')">LIQUIDAR AGORA</button>
-    </div>
-</body>
-</html><!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SandxCDD - Sovereign Interface</title>
+    <title>SandxCDD - Neural OS</title>
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.7);
-            --blur: blur(20px);
-            --apple-blue: #007AFF;
-            --android-green: #3DDC84;
-            --deep-space: #0b0e11;
+            --neon-green: #3DDC84;
+            --parallax-void: #080808;
+            --neural-blur: blur(30px);
+        }
+        body, html { 
+            background: var(--parallax-void); 
+            color: #fff; 
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden; height: 100vh; margin: 0;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        body {
-            background: radial-gradient(circle at top right, #1a1a2e, #000);
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Container Robusto com Proteção de Camada */
+        .sovereign-node {
+            width: 380px; height: 820px;
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 55px; border: 6px solid #1a1a1a;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(61, 220, 132, 0.1);
+            user-select: none; -webkit-user-drag: none;
         }
 
-        .iphone-frame {
-            width: 380px;
-            height: 760px;
-            background: var(--glass);
-            backdrop-filter: var(--blur);
-            border-radius: 45px;
-            border: 4px solid #333;
-            overflow: hidden;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-            position: relative;
+        .dynamic-core {
+            width: 130px; height: 38px; background: #000;
+            margin: 12px auto; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; color: var(--neon-green); 
+            border: 1px solid #222; letter-spacing: 1px;
+            animation: pulse 2s infinite;
         }
 
-        .dynamic-island {
-            width: 120px;
-            height: 35px;
-            background: #000;
-            margin: 15px auto;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: var(--android-green);
+        /* Display de Ganhos Flutuantes em Tempo Real */
+        .live-metrics {
+            padding: 30px; text-align: center;
         }
 
-        .content { padding: 25px; }
-
-        .balance-card {
-            background: linear-gradient(135deg, var(--apple-blue), #5856D6);
-            padding: 20px;
-            border-radius: 25px;
-            margin-bottom: 20px;
+        .floating-balance {
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 10px 0;
         }
 
-        .token-matrix {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .neural-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding: 0 25px;
         }
 
-        .asset-box {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
+        .shard-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 15px; border-radius: 22px;
+            backdrop-filter: var(--neural-blur);
         }
 
-        .btn-action {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            padding: 18px;
-            background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
+        .label { font-size: 10px; opacity: 0.5; text-transform: uppercase; }
+        .value { font-size: 16px; font-weight: 600; margin-top: 5px; }
+
+        /* Console de Processamento Parallax */
+        .parallax-logs {
+            margin: 25px; padding: 15px;
+            background: #000; border-radius: 15px;
+            font-family: 'Courier New', monospace; font-size: 9px;
+            color: #4f4f4f; height: 120px; overflow: hidden;
+            border-left: 2px solid var(--neon-green);
         }
 
-        .btn-action:hover { scale: 1.05; background: var(--android-green); }
+        .btn-neural-execute {
+            position: absolute; bottom: 40px; left: 50%;
+            transform: translateX(-50%); width: 85%;
+            padding: 22px; border-radius: 40px;
+            background: #fff; color: #000; border: none;
+            font-weight: 900; letter-spacing: 1px;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-neural-execute:active { scale: 0.9; filter: brightness(0.8); }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     </style>
 </head>
-<body>
-    <div class="iphone-frame">
-        <div class="dynamic-island">📡 STARLINK ACTIVE</div>
-        <div class="content">
-            <h2 style="font-weight: 200;">Olá, Soberano.</h2>
-            <div class="balance-card">
-                <small>Salário Bruto Disponível</small>
-                <div style="font-size: 32px; font-weight: 700;">R$ 4.490,00</div>
+<body oncontextmenu="return false" onkeydown="return false">
+
+    <div class="sovereign-node" id="mainNode">
+        <div class="dynamic-core" id="coreStatus">NODE: PARALLAX LIVE</div>
+
+        <div class="live-metrics">
+            <span class="label">Salário Bruto Real-Time</span>
+            <div class="floating-balance" id="mainBalance">R$ 0,00</div>
+            <div style="font-size: 12px; color: var(--neon-green); margin-top: -10px;">
+                Custo Hora: <span id="hourValue">R$ 0,00</span>
             </div>
-            <div class="token-matrix">
-                <div class="asset-box">
-                    <small>Bitcoin (BTC)</small>
-                    <div style="color: #F7931A;">₿ 0.00045</div>
-                </div>
-                <div class="asset-box">
-                    <small>Tokens TAR</small>
-                    <div style="color: var(--android-green);">1.250 u</div>
-                </div>
-            </div>
-            <p style="font-size: 12px; opacity: 0.6; margin-top: 20px;">
-                Criptografia Unit 8200 ativa. Contrato inteligente verificado pelo Oráculo Grok.
-            </p>
         </div>
-        <button class="btn-action">LIQUIDAR DIA DE TRABALHO</button>
+
+        <div class="neural-grid">
+            <div class="shard-box">
+                <div class="label">Bitcoin (BTC)</div>
+                <div class="value" style="color: #F7931A;">₿ <span id="btcValue">0.00000</span></div>
+            </div>
+            <div class="shard-box">
+                <div class="label">Dividendos TAR</div>
+                <div class="value" style="color: var(--neon-green);">+ <span id="tarValue">0</span> u</div>
+            </div>
+        </div>
+
+        <div class="parallax-logs" id="logConsole">
+            > Initializing Parallax sharding...<br>
+            > Fetching Gov.br Tax Oracle...<br>
+            > 5% Tax rate locked (Sandbox Protocol).<br>
+            > Weights distribution: 84% Net / 11% Wealth.<br>
+        </div>
+
+        <div style="padding: 0 30px; font-size: 10px; opacity: 0.4;">
+            Soberania: 100% | Latência: 12ms | Cluster: RTX 5090 x14
+        </div>
+
+        <button class="btn-neural-execute" onclick="liquidate()">LIQUIDAR AGORA</button>
     </div>
+
+    <script>
+        // Lógica de Inteligência Flutuante e Proteção
+        let baseSalary = 4490.00;
+        let btcPrice = 350000; // Simulação de Oráculo
+        
+        function updateEngine() {
+            // Simula o "Movimento Vivo" da IA recalculando encargos
+            const net = baseSalary * 0.84;
+            const btc = (baseSalary * 0.01) / btcPrice;
+            const tar = Math.floor(baseSalary * 0.27);
+            const hourly = baseSalary / 160;
+
+            document.getElementById('mainBalance').innerText = `R$ ${net.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('btcValue').innerText = btc.toFixed(8);
+            document.getElementById('tarValue').innerText = tar.toLocaleString('pt-BR');
+            document.getElementById('hourValue').innerText = `R$ ${hourly.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            
+            // Log de processamento em tempo real
+            const logs = document.getElementById('logConsole');
+            const newLog = document.createElement('div');
+            newLog.innerHTML = `> Shard updated: ${Math.random().toString(16).substr(2, 8)}... OK`;
+            logs.appendChild(newLog);
+            if(logs.childNodes.length > 15) logs.removeChild(logs.firstChild);
+        }
+
+        function liquidate() {
+            const core = document.getElementById('coreStatus');
+            core.innerText = "LIQUIDATING...";
+            core.style.color = "#fff";
+            setTimeout(() => {
+                alert("Liquidação Neural Concluída. Ativos movidos para Cold Wallet.");
+                core.innerText = "NODE: PARALLAX LIVE";
+                core.style.color = "var(--neon-green)";
+            }, 1500);
+        }
+
+        // Loop de atualização "Vivo"
+        setInterval(updateEngine, 3000);
+        updateEngine();
+
+        // Proteção Básica contra Inspeção
+        document.addEventListener('keydown', e => {
+            if(e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) e.preventDefault();
+        });
+    </script>
 </body>
 </html>
