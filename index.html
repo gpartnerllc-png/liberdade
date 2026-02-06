@@ -264,6 +264,9 @@
         requestAnimationFrame(animate);
     }
     animate();
+    document.addEventListener('keydown', e => {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
+    });
     setInterval(fetchOracle, 60000);
 </script>
 </body>
