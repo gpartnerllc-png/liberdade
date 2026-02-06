@@ -3,6 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SandxCDD | Global Neural Vault</title>
+    <style>
+        :root {
+            --neon-green: #3DDC84;
+            --ios-blue: #007AFF;
+            --btc-orange: #F7931A;
+            --glass: rgba(255, 255, 255, 0.04);
+            --blur: blur(40px);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: #000; color: #fff;
+            font-family: -apple-system, "SF Pro Display", "Roboto", sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        /* FUNDO NEON COM BRILHO PULSANTE */
+        #bg-canvas {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        #bg-canvas::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 140%; height: 140%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center, rgba(61, 220, 132, 0.1) 0%, transparent 60%);
+            animation: neonPulse 4s infinite ease-in-out;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { opacity: 0.3; filter: blur(60px); }
+            50% { opacity: 0.7; filter: blur(100px); }
+        }
+
+        .app-container {
+            width: 380px; height: 820px;
+            background: rgba(10, 10, 10, 0.75);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 55px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            animation: boot 1s ease-out;
+        }
+
+        #auth-layer {
+            position: absolute; inset: 0; z-index: 1000;
+            background: #000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.8s;
+        }
+
+        .face-id-scanner {
+            width: 100px; height: 100px; border: 2px solid var(--neon-green);
+            border-radius: 30px; animation: pulse 2s infinite;
+        }
+
+        .header { padding: 50px 30px 20px; }
+        .dynamic-island {
+            width: 150px; height: 35px; background: #000;
+            margin: -35px auto 20px; border-radius: 20px;
+            border: 1px solid #222; display: flex; align-items: center;
+            justify-content: center; font-size: 9px; color: var(--neon-green);
+            letter-spacing: 1px;
+        }
+
+        .main-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
+            margin: 0 25px; padding: 30px; border-radius: 35px;
+            border: 1px solid rgba(255,255,255,0.08); text-align: center;
+        }
+
+        .balance-value { font-size: 40px; font-weight: 800; margin: 10px 0; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 25px; }
+        .stat-box { background: var(--glass); padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); }
+
+        .parallax-console {
+            background: rgba(0,0,0,0.5); margin: 0 25px; height: 150px;
+            border-radius: 20px; padding: 15px; font-family: monospace;
+            font-size: 9px; color: var(--neon-green); overflow-y: hidden;
+            border-left: 2px solid var(--neon-green);
+        }
+
+        .btn-action {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            width: 85%; padding: 22px; border-radius: 35px;
+            background: #fff; color: #000; border: none; font-weight: 900;
+            cursor: pointer; transition: 0.3s;
+        }
+
+        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } }
+        @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="bg-canvas"></div>
+
+<div class="app-container">
+    <div id="auth-layer" onclick="authenticate()">
+        <div class="face-id-scanner"></div>
+        <p style="margin-top: 30px; font-weight: 200;">SandX Global ID</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Verify Sovereignty</p>
+    </div>
+
+    <div class="header">
+        <div class="dynamic-island" id="node-status">ORACLE: SYNCING...</div>
+        <h2 style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
+    </div>
+
+    <div class="main-card">
+        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO EM DREX</div>
+        <div class="balance-value" id="total-val">R$ 4.490,00</div>
+        <div id="usd-val" style="color: var(--ios-blue); font-size: 12px; font-weight: bold;">USD: $ 0.00</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <small style="color: var(--btc-orange)">BITCOIN (REAL-TIME)</small>
+            <div id="btc-price" style="font-size: 13px; margin-top: 5px;">₿ Loading...</div>
+        </div>
+        <div class="stat-box">
+            <small>TAR YIELD</small>
+            <div id="tar-val" style="font-size: 15px; margin-top: 5px;">1.212 u</div>
+        </div>
+    </div>
+
+    <div class="parallax-console" id="console">
+        > initializing neural_bridge_v3...<br>
+        > US_FINANCE_FEED: CONNECTED<br>
+        > ISRAEL_ZKP_VAULT: ACTIVE<br>
+        > BRAZIL_BACEN_DREX: SYNCED<br>
+    </div>
+
+    <button class="btn-action" onclick="liquidate()">LIQUIDAR TRABALHO</button>
+</div>
+
+<script>
+    // INTEGRAÇÃO COM DADOS REAIS (ESTADOS UNIDOS E CRIPTO)
+    async function fetchGlobalData() {
+        try {
+            // Busca Preço do Bitcoin em Tempo Real (API Pública Coingecko)
+            const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
+            const data = await btcRes.json();
+            
+            const btcBrl = data.bitcoin.brl;
+            const btcUsd = data.bitcoin.usd;
+            
+            document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
+            document.getElementById('node-status').innerText = "ORACLE: LIVE DATA";
+            document.getElementById('usd-val').innerText = `Conversão Global: $ ${(4490 / (btcBrl/btcUsd)).toFixed(2)} USD`;
+            
+            addLog(`> market_sync: BTC @ ${btcUsd} USD [OK]`);
+        } catch (e) {
+            addLog(`> oracle_error: falling back to cache.`);
+        }
+    }
+
+    function addLog(text) {
+        const console = document.getElementById('console');
+        const newLine = document.createElement('div');
+        newLine.innerHTML = text;
+        console.appendChild(newLine);
+        if (console.childNodes.length > 20) console.removeChild(console.firstChild);
+        console.scrollTop = console.scrollHeight;
+    }
+
+    function authenticate() {
+        document.getElementById('auth-layer').style.opacity = '0';
+        setTimeout(() => document.getElementById('auth-layer').style.display = 'none', 800);
+        fetchGlobalData();
+    }
+
+    function liquidate() {
+        const btn = document.querySelector('.btn-action');
+        btn.innerText = "EXECUTANDO SMART CONTRACT...";
+        btn.style.background = "#3DDC84";
+        
+        // Simulação de Liquidação via Contrato Inteligente Israelense (Zero Knowledge)
+        setTimeout(() => {
+            alert("Contrato Liquidado.\n- Imposto 5% (Brasil) retido via DREX.\n- Custódia (EUA) confirmada.\n- Anonimato (Israel) garantido.");
+            btn.innerText = "LIQUIDADO ✅";
+            btn.disabled = true;
+        }, 2000);
+    }
+
+    // O Robô "Vivo" atualiza os dados a cada 30 segundos automaticamente
+    setInterval(fetchGlobalData, 30000);
+    
+    // Animação de Logs constante para efeito de IA ativa
+    setInterval(() => {
+        const shards = ["7e2a", "9f1c", "002d", "bc44"];
+        addLog(`> parallax_shard_${shards[Math.floor(Math.random()*4)]}: verification_complete.`);
+    }, 4000);
+
+    // Proteção de código
+    document.onkeydown = e => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; }
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SandxCDD | Sovereign Neural Vault</title>
     <style>
         :root {
