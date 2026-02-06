@@ -21,6 +21,7 @@
             overflow: hidden;
         }
 
+        /* FUNDO NEURAL DINÂMICO REATIVADO */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
@@ -99,6 +100,10 @@
             background: #fff; color: #000; border: none; font-weight: 900;
             cursor: pointer; transition: 0.3s;
         }
+
+        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } }
+        @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -122,7 +127,7 @@
         <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">LUCRO LÍQUIDO REAL (DREX)</div>
         <div class="balance-value" id="total-val">R$ 0,00</div>
         <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">AGUARDANDO START...</div>
-        <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Custo/Hora CLT: R$ 51,00</div>
+        <div id="hour-val-info" style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Ganhos/Hora: R$ 51,00</div>
     </div>
 
     <div class="stats-grid">
@@ -132,30 +137,31 @@
         </div>
         <div class="stat-box">
             <small>LOGÍSTICA DIA</small>
-            <div id="work-status" style="font-size: 13px; margin-top: 5px; font-weight: bold; color: #ff3b30;">R$ -33,00 (TRANS)</div>
+            <div id="work-status" style="font-size: 13px; margin-top: 5px; font-weight: bold; color: #ff3b30;">OFFLINE</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
-        > system: neural_vault_v4 online.<br>
-        > awaiting: manager_nfc_auth...<br>
+        > system: neural_vault_v6 online.<br>
+        > awaiting: manager_identity_auth...<br>
     </div>
 
     <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR JORNADA</button>
 </div>
 
 <script>
-    /* 1. MOTOR DE INTERFACE */
+    /* 1. MOTOR DE PARTÍCULAS (REATIVADO E ESTÁVEL) */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
     function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    
     class Particle {
         constructor() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.5;
-            this.vy = (Math.random() - 0.5) * 0.5;
+            this.vx = (Math.random() - 0.5) * 0.4;
+            this.vy = (Math.random() - 0.5) * 0.4;
         }
         draw() {
             ctx.fillStyle = "rgba(61, 220, 132, 0.4)";
@@ -167,24 +173,38 @@
             if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
         }
     }
-    for (let i = 0; i < 70; i++) particles.push(new Particle());
+
+    function createParticles() {
+        particles = [];
+        for (let i = 0; i < 80; i++) particles.push(new Particle());
+    }
+
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+            particles.forEach(p2 => {
+                let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                if (dist < 100) {
+                    ctx.strokeStyle = `rgba(61, 220, 132, ${1 - dist/100})`;
+                    ctx.lineWidth = 0.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                }
+            });
+        });
         requestAnimationFrame(animate);
     }
-    window.addEventListener('resize', initCanvas); initCanvas(); animate();
+    window.addEventListener('resize', initCanvas); 
+    initCanvas(); createParticles(); animate();
 
-    /* 2. MOTOR IA: CLT + TRANSPORTE + TEMPO REAL */
-    const transporteDia = 33.00;
-    const valorHoraCLT = 51.00; // Valor com encargos (FGTS, 13º, Férias)
-    const ganhoPorSegundo = valorHoraCLT / 3600;
-    
-    let saldoAtual = -transporteDia; // Começa devendo o transporte do dia
+    /* 2. LÓGICA DE IDENTIDADE E CUSTOS CLT */
+    let saldoAtual = 0;
+    let valorHoraCLT = 51.00; 
+    let custoPassagem = 0;
     let isWorking = false;
     let timerIA;
-    let brlToUsdRate = 5.60;
     let userName = "";
+    let brlToUsdRate = 5.60;
 
     async function fetchOracle() {
         try {
@@ -193,20 +213,37 @@
             brlToUsdRate = data.bitcoin.brl / data.bitcoin.usd;
             document.getElementById('btc-price').innerText = `R$ ${data.bitcoin.brl.toLocaleString('pt-BR')}`;
             document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
-        } catch (e) { addLog("> system: oracle_offline"); }
+        } catch (e) { addLog("> system: oracle_reconnecting..."); }
     }
 
     function authenticate() {
-        userName = prompt("Insira seu Nome para Check-in:");
-        if (!userName) userName = "Soberano";
-        
+        // SOLICITAÇÃO DE DADOS OBRIGATÓRIA
+        let tempName = prompt("Digite seu Nome para Identificação:");
+        if (tempName === null || tempName.trim() === "") {
+            alert("ERRO: Autenticação cancelada. Identidade obrigatória.");
+            return; // Interrompe o início automático
+        }
+
+        let tempPassagem = prompt("Digite o custo total de passagem do dia (R$):", "33.00");
+        if (tempPassagem === null || tempPassagem.trim() === "" || isNaN(tempPassagem)) {
+            alert("ERRO: Definição de logística obrigatória.");
+            return; // Interrompe o início automático
+        }
+
+        // Se chegou aqui, os dados foram inseridos
+        userName = tempName;
+        custoPassagem = parseFloat(tempPassagem);
+        saldoAtual = -custoPassagem; // Inicia negativo com o custo da passagem
+
         document.getElementById('auth-layer').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('auth-layer').style.display = 'none';
             document.getElementById('user-greeting').innerText = `Olá, ${userName}.`;
-            // Mostra o saldo inicial negativo (custo do transporte)
+            document.getElementById('work-status').innerText = `R$ -${custoPassagem.toFixed(2)} (TRANS)`;
             updateDisplay();
             fetchOracle();
+            addLog(`> nfc_auth: ${userName.toLowerCase()}_key_active`);
+            addLog(`> logistics: initial_deficit R$ ${custoPassagem}`);
         }, 800);
     }
 
@@ -218,20 +255,21 @@
             isWorking = true;
             btn.innerText = "PAUSAR / INTERVALO";
             btn.style.background = "#ff3b30"; btn.style.color = "#fff";
-            statusBox.innerText = "SESSÃO ATIVA"; statusBox.style.color = "var(--neon-green)";
-            addLog(`> session: start_clt_calc_at_${new Date().toLocaleTimeString()}`);
+            statusBox.style.color = "var(--neon-green)";
+            addLog(`> work_session: active [CLT_MODE]`);
             timerIA = setInterval(runNeuralEngine, 1000);
         } else {
             isWorking = false;
             btn.innerText = "RETORNAR AO TRABALHO";
             btn.style.background = "#fff"; btn.style.color = "#000";
             statusBox.innerText = "INTERVALO"; statusBox.style.color = "#ffcc00";
-            addLog(`> session: pause_registered`);
+            addLog(`> work_session: paused`);
             clearInterval(timerIA);
         }
     }
 
     function runNeuralEngine() {
+        const ganhoPorSegundo = valorHoraCLT / 3600;
         saldoAtual += ganhoPorSegundo;
         updateDisplay();
     }
@@ -239,20 +277,20 @@
     function updateDisplay() {
         const el = document.getElementById('total-val');
         el.innerText = `R$ ${saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        
-        // Cor visual para saldo negativo ou positivo
         el.style.color = saldoAtual < 0 ? "#ff3b30" : "var(--neon-green)";
         
         const usdVal = Math.max(0, saldoAtual) / brlToUsdRate;
-        document.getElementById('usd-val').innerText = `LUCRO GLOBAL: $ ${usdVal.toFixed(2)} USD`;
+        document.getElementById('usd-val').innerText = `CONVERSÃO IA: $ ${usdVal.toFixed(2)} USD`;
+        
+        if(isWorking) {
+            document.getElementById('work-status').innerText = saldoAtual < 0 ? "RECUPERANDO CUSTO" : "ONLINE (LUCRO)";
+        }
     }
 
     function addLog(text) {
         const c = document.getElementById('console');
-        const d = document.createElement('div');
-        d.innerHTML = text;
-        c.appendChild(d);
-        c.scrollTop = c.scrollHeight;
+        const d = document.createElement('div'); d.innerHTML = text;
+        c.appendChild(d); c.scrollTop = c.scrollHeight;
     }
 
     setInterval(fetchOracle, 60000);
