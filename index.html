@@ -2,173 +2,166 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SandxCDD - Neural OS</title>
+    <title>SandxCDD - Vault</title>
     <style>
         :root {
-            --neon-green: #3DDC84;
-            --parallax-void: #080808;
-            --neural-blur: blur(30px);
+            --glass: rgba(255, 255, 255, 0.03);
+            --neon-border: rgba(61, 220, 132, 0.4);
+            --gold-btc: #F7931A;
         }
+        
         body, html { 
-            background: var(--parallax-void); 
-            color: #fff; 
-            font-family: 'Inter', -apple-system, sans-serif;
-            overflow: hidden; height: 100vh; margin: 0;
-            display: flex; justify-content: center; align-items: center;
+            margin: 0; padding: 0; height: 100vh; 
+            background: #020202; overflow: hidden;
+            font-family: 'SF Pro Display', 'Inter', sans-serif;
         }
 
-        /* Container Robusto com Proteção de Camada */
-        .sovereign-node {
-            width: 380px; height: 820px;
-            background: rgba(20, 20, 20, 0.8);
-            border-radius: 55px; border: 6px solid #1a1a1a;
-            position: relative; overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(61, 220, 132, 0.1);
-            user-select: none; -webkit-user-drag: none;
+        /* 3D Neural Background - Movimento Vivo */
+        #neural-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #0d1117, #000);
+            z-index: -1;
         }
 
-        .dynamic-core {
-            width: 130px; height: 38px; background: #000;
-            margin: 12px auto; border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 9px; color: var(--neon-green); 
-            border: 1px solid #222; letter-spacing: 1px;
-            animation: pulse 2s infinite;
+        .vault-app {
+            width: 390px; height: 844px;
+            margin: auto; position: relative;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            box-shadow: 0 0 100px rgba(0,0,0,1);
+            display: flex; flex-direction: column;
+            animation: appAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Display de Ganhos Flutuantes em Tempo Real */
-        .live-metrics {
-            padding: 30px; text-align: center;
+        /* Tela de Bloqueio IA */
+        #lock-screen {
+            position: absolute; inset: 0; z-index: 100;
+            background: #000; border-radius: 50px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.8s ease;
         }
 
-        .floating-balance {
-            font-size: 48px; font-weight: 800;
-            background: linear-gradient(to bottom, #fff, #888);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 10px 0;
+        .face-id-ring {
+            width: 80px; height: 80px; border: 2px solid var(--neon-border);
+            border-radius: 20px; animation: scan 2s infinite;
         }
 
-        .neural-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            padding: 0 25px;
+        /* Cartão 3D Flutuante */
+        .main-card {
+            margin: 30px; padding: 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border-radius: 35px; border: 1px solid var(--neon-border);
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
-        .shard-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 15px; border-radius: 22px;
-            backdrop-filter: var(--neural-blur);
+        .balance-label { font-size: 11px; opacity: 0.5; letter-spacing: 2px; }
+        .main-value { font-size: 42px; font-weight: 800; margin: 15px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
+        /* Grade de Ativos Soberanos */
+        .assets-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 30px;
         }
 
-        .label { font-size: 10px; opacity: 0.5; text-transform: uppercase; }
-        .value { font-size: 16px; font-weight: 600; margin-top: 5px; }
-
-        /* Console de Processamento Parallax */
-        .parallax-logs {
-            margin: 25px; padding: 15px;
-            background: #000; border-radius: 15px;
-            font-family: 'Courier New', monospace; font-size: 9px;
-            color: #4f4f4f; height: 120px; overflow: hidden;
-            border-left: 2px solid var(--neon-green);
+        .asset-item {
+            background: var(--glass); padding: 20px; border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
         }
 
-        .btn-neural-execute {
-            position: absolute; bottom: 40px; left: 50%;
-            transform: translateX(-50%); width: 85%;
-            padding: 22px; border-radius: 40px;
+        /* Log de Sharding Parallax Live */
+        .live-parallax-feed {
+            height: 150px; margin: 30px; background: rgba(0,0,0,0.4);
+            border-radius: 20px; font-family: monospace; font-size: 10px;
+            padding: 15px; color: var(--neon-border); overflow: hidden;
+        }
+
+        .btn-liquidate {
+            margin: 0 30px 40px; padding: 20px;
             background: #fff; color: #000; border: none;
-            font-weight: 900; letter-spacing: 1px;
-            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 30px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(61, 220, 132, 0.3);
+            transition: 0.3s;
         }
 
-        .btn-neural-execute:active { scale: 0.9; filter: brightness(0.8); }
-
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        @keyframes scan { 0%, 100% { scale: 1; } 50% { scale: 1.1; border-color: #fff; } }
+        @keyframes appAppear { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body oncontextmenu="return false" onkeydown="return false">
+<body>
 
-    <div class="sovereign-node" id="mainNode">
-        <div class="dynamic-core" id="coreStatus">NODE: PARALLAX LIVE</div>
+<div id="neural-bg"></div>
 
-        <div class="live-metrics">
-            <span class="label">Salário Bruto Real-Time</span>
-            <div class="floating-balance" id="mainBalance">R$ 0,00</div>
-            <div style="font-size: 12px; color: var(--neon-green); margin-top: -10px;">
-                Custo Hora: <span id="hourValue">R$ 0,00</span>
-            </div>
-        </div>
-
-        <div class="neural-grid">
-            <div class="shard-box">
-                <div class="label">Bitcoin (BTC)</div>
-                <div class="value" style="color: #F7931A;">₿ <span id="btcValue">0.00000</span></div>
-            </div>
-            <div class="shard-box">
-                <div class="label">Dividendos TAR</div>
-                <div class="value" style="color: var(--neon-green);">+ <span id="tarValue">0</span> u</div>
-            </div>
-        </div>
-
-        <div class="parallax-logs" id="logConsole">
-            > Initializing Parallax sharding...<br>
-            > Fetching Gov.br Tax Oracle...<br>
-            > 5% Tax rate locked (Sandbox Protocol).<br>
-            > Weights distribution: 84% Net / 11% Wealth.<br>
-        </div>
-
-        <div style="padding: 0 30px; font-size: 10px; opacity: 0.4;">
-            Soberania: 100% | Latência: 12ms | Cluster: RTX 5090 x14
-        </div>
-
-        <button class="btn-neural-execute" onclick="liquidate()">LIQUIDAR AGORA</button>
+<div class="vault-app">
+    <div id="lock-screen" onclick="unlock()">
+        <div class="face-id-ring"></div>
+        <p style="margin-top: 20px; font-size: 12px; color: #666;">AUTENTICAÇÃO NEURAL REQUERIDA</p>
+        <p style="font-size: 10px; color: var(--neon-border);">Clique para simular FaceID</p>
     </div>
 
-    <script>
-        // Lógica de Inteligência Flutuante e Proteção
-        let baseSalary = 4490.00;
-        let btcPrice = 350000; // Simulação de Oráculo
+    <div style="height: 40px;"></div> <div class="main-card">
+        <div class="balance-label">DISPONÍVEL PARA LIQUIDAÇÃO</div>
+        <div class="main-value" id="disp">R$ 4.490,00</div>
+        <div style="font-size: 12px; color: var(--neon-border);">Ganhos/Hora: R$ 28,063</div>
+    </div>
+
+    <div class="assets-grid">
+        <div class="asset-item">
+            <div class="balance-label" style="color: var(--gold-btc);">BITCOIN</div>
+            <div class="value">₿ 0.000128</div>
+        </div>
+        <div class="asset-item">
+            <div class="balance-label" style="color: #fff;">DIVIDENDOS TAR</div>
+            <div class="value">+ 1.212 u</div>
+        </div>
+    </div>
+
+    <div class="live-parallax-feed" id="logs">
+        > NODE_ID: 0x7E... ACTIVE<br>
+        > WAN SCALE MESH: 256 GPUs<br>
+        > GOV_BRAZIL_ORACLE: CONNECTED<br>
+        > TAX_ROUTING: 5% (SANDBOX_V2)<br>
+    </div>
+
+    <button class="btn-liquidate" onclick="triggerLiquidation()">LIQUIDAR DIA DE TRABALHO</button>
+</div>
+
+<script>
+    function unlock() {
+        const lock = document.getElementById('lock-screen');
+        lock.style.opacity = '0';
+        setTimeout(() => lock.style.display = 'none', 800);
+    }
+
+    function triggerLiquidation() {
+        const btn = document.querySelector('.btn-liquidate');
+        btn.innerText = "LIQUIDANDO VIA PARALLAX...";
+        btn.style.background = "#3DDC84";
         
-        function updateEngine() {
-            // Simula o "Movimento Vivo" da IA recalculando encargos
-            const net = baseSalary * 0.84;
-            const btc = (baseSalary * 0.01) / btcPrice;
-            const tar = Math.floor(baseSalary * 0.27);
-            const hourly = baseSalary / 160;
+        // Simulação de transação via DREX/Blockchain
+        setTimeout(() => {
+            alert("Operação Finalizada. Impostos pagos e ativos distribuídos.");
+            btn.innerText = "DIA LIQUIDADO ✅";
+            btn.disabled = true;
+        }, 2000);
+    }
 
-            document.getElementById('mainBalance').innerText = `R$ ${net.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('btcValue').innerText = btc.toFixed(8);
-            document.getElementById('tarValue').innerText = tar.toLocaleString('pt-BR');
-            document.getElementById('hourValue').innerText = `R$ ${hourly.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            
-            // Log de processamento em tempo real
-            const logs = document.getElementById('logConsole');
-            const newLog = document.createElement('div');
-            newLog.innerHTML = `> Shard updated: ${Math.random().toString(16).substr(2, 8)}... OK`;
-            logs.appendChild(newLog);
-            if(logs.childNodes.length > 15) logs.removeChild(logs.firstChild);
-        }
+    // Gerador de Logs Infinitos (Movimento Vivo da IA)
+    setInterval(() => {
+        const logs = document.getElementById('logs');
+        const lines = [
+            `> Shard ${Math.random().toString(16).substring(2,8)} verified.`,
+            `> RTT Profile: 11ms. Path optimized.`,
+            `> Gov_Seal: Hash_Validated.`,
+            `> Distributed Ledger sync... OK`
+        ];
+        logs.innerHTML += `<br>${lines[Math.floor(Math.random() * lines.length)]}`;
+        if(logs.childNodes.length > 20) logs.removeChild(logs.firstChild);
+        logs.scrollTop = logs.scrollHeight;
+    }, 2000);
+</script>
 
-        function liquidate() {
-            const core = document.getElementById('coreStatus');
-            core.innerText = "LIQUIDATING...";
-            core.style.color = "#fff";
-            setTimeout(() => {
-                alert("Liquidação Neural Concluída. Ativos movidos para Cold Wallet.");
-                core.innerText = "NODE: PARALLAX LIVE";
-                core.style.color = "var(--neon-green)";
-            }, 1500);
-        }
-
-        // Loop de atualização "Vivo"
-        setInterval(updateEngine, 3000);
-        updateEngine();
-
-        // Proteção Básica contra Inspeção
-        document.addEventListener('keydown', e => {
-            if(e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) e.preventDefault();
-        });
-    </script>
 </body>
 </html>
