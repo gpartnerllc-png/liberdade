@@ -299,7 +299,12 @@
         const d = document.createElement('div'); d.innerHTML = text;
         c.appendChild(d); c.scrollTop = c.scrollHeight;
     }
+    
+document.addEventListener('keydown', e => {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
+    });
 
+    setInterval(fetchOracleData, 60000);
     setInterval(fetchOracle, 60000);
 </script>
 </body>
