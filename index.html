@@ -99,10 +99,6 @@
             background: #fff; color: #000; border: none; font-weight: 900;
             cursor: pointer; transition: 0.3s;
         }
-
-        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } }
-        @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -114,7 +110,7 @@
     <div id="auth-layer" onclick="authenticate()">
         <div class="face-id-scanner"></div>
         <p style="margin-top: 30px; font-weight: 200; letter-spacing: 2px;">SANDX GLOBAL ID</p>
-        <p style="color: var(--neon-green); font-size: 11px;">Toque para Identificar (NFC/QR)</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Identificação NFC/QR Digital</p>
     </div>
 
     <div class="header">
@@ -123,10 +119,10 @@
     </div>
 
     <div class="main-card">
-        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO (DREX)</div>
+        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">LUCRO LÍQUIDO REAL (DREX)</div>
         <div class="balance-value" id="total-val">R$ 0,00</div>
         <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">AGUARDANDO START...</div>
-        <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Ganhos/Hora: R$ 38,50</div>
+        <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Custo/Hora CLT: R$ 51,00</div>
     </div>
 
     <div class="stats-grid">
@@ -135,21 +131,21 @@
             <div id="btc-price" style="font-size: 13px; margin-top: 5px; font-weight: bold;">₿ Loading...</div>
         </div>
         <div class="stat-box">
-            <small>STATUS IA</small>
-            <div id="work-status" style="font-size: 15px; margin-top: 5px; font-weight: bold; color: #ff3b30;">OFFLINE</div>
+            <small>LOGÍSTICA DIA</small>
+            <div id="work-status" style="font-size: 13px; margin-top: 5px; font-weight: bold; color: #ff3b30;">R$ -33,00 (TRANS)</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
-        > system: protocols initialized.<br>
-        > awaiting: identity_input...<br>
+        > system: neural_vault_v4 online.<br>
+        > awaiting: manager_nfc_auth...<br>
     </div>
 
-    <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR TRABALHO</button>
+    <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR JORNADA</button>
 </div>
 
 <script>
-    /* 1. MOTOR GRÁFICO */
+    /* 1. MOTOR DE INTERFACE */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -179,40 +175,38 @@
     }
     window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    /* 2. MOTOR DE IDENTIDADE E CÁLCULO */
-    let accumulatedBalance = 0.00;
-    const gainPerHour = 38.50;
-    const gainPerSecond = gainPerHour / 3600;
+    /* 2. MOTOR IA: CLT + TRANSPORTE + TEMPO REAL */
+    const transporteDia = 33.00;
+    const valorHoraCLT = 51.00; // Valor com encargos (FGTS, 13º, Férias)
+    const ganhoPorSegundo = valorHoraCLT / 3600;
+    
+    let saldoAtual = -transporteDia; // Começa devendo o transporte do dia
     let isWorking = false;
-    let workTimer;
+    let timerIA;
     let brlToUsdRate = 5.60;
     let userName = "";
 
-    async function fetchOracleData() {
+    async function fetchOracle() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
             const data = await res.json();
             brlToUsdRate = data.bitcoin.brl / data.bitcoin.usd;
             document.getElementById('btc-price').innerText = `R$ ${data.bitcoin.brl.toLocaleString('pt-BR')}`;
             document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
-        } catch (e) { addLog("> system: oracle_link_offline"); }
+        } catch (e) { addLog("> system: oracle_offline"); }
     }
 
     function authenticate() {
-        // Agora o nome é solicitado dinamicamente via prompt ou busca
-        userName = prompt("Identifique-se, Soberano:");
+        userName = prompt("Insira seu Nome para Check-in:");
+        if (!userName) userName = "Soberano";
         
-        if (!userName || userName.trim() === "") {
-            userName = "Soberano";
-        }
-
-        addLog(`> nfc_auth: ${userName.toLowerCase()}_key_verified [OK]`);
         document.getElementById('auth-layer').style.opacity = '0';
-        
         setTimeout(() => {
             document.getElementById('auth-layer').style.display = 'none';
             document.getElementById('user-greeting').innerText = `Olá, ${userName}.`;
-            fetchOracleData();
+            // Mostra o saldo inicial negativo (custo do transporte)
+            updateDisplay();
+            fetchOracle();
         }, 800);
     }
 
@@ -222,45 +216,46 @@
         
         if (!isWorking) {
             isWorking = true;
-            btn.innerText = "PARAR / INTERVALO";
-            btn.style.background = "#ff3b30";
-            btn.style.color = "#fff";
-            statusBox.innerText = "ONLINE";
-            statusBox.style.color = "var(--neon-green)";
-            addLog(`> work_session: active_for_${userName.toLowerCase()}`);
-            workTimer = setInterval(runNeuralEngine, 1000);
+            btn.innerText = "PAUSAR / INTERVALO";
+            btn.style.background = "#ff3b30"; btn.style.color = "#fff";
+            statusBox.innerText = "SESSÃO ATIVA"; statusBox.style.color = "var(--neon-green)";
+            addLog(`> session: start_clt_calc_at_${new Date().toLocaleTimeString()}`);
+            timerIA = setInterval(runNeuralEngine, 1000);
         } else {
             isWorking = false;
             btn.innerText = "RETORNAR AO TRABALHO";
-            btn.style.background = "#fff";
-            btn.style.color = "#000";
-            statusBox.innerText = "PAUSADO";
-            statusBox.style.color = "#ffcc00";
-            addLog(`> work_session: idle_mode_engaged`);
-            clearInterval(workTimer);
+            btn.style.background = "#fff"; btn.style.color = "#000";
+            statusBox.innerText = "INTERVALO"; statusBox.style.color = "#ffcc00";
+            addLog(`> session: pause_registered`);
+            clearInterval(timerIA);
         }
     }
 
     function runNeuralEngine() {
-        accumulatedBalance += gainPerSecond;
-        document.getElementById('total-val').innerText = `R$ ${accumulatedBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        const usdVal = accumulatedBalance / brlToUsdRate;
-        document.getElementById('usd-val').innerText = `CONVERSÃO IA: $ ${usdVal.toFixed(2)} USD`;
+        saldoAtual += ganhoPorSegundo;
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        const el = document.getElementById('total-val');
+        el.innerText = `R$ ${saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        
+        // Cor visual para saldo negativo ou positivo
+        el.style.color = saldoAtual < 0 ? "#ff3b30" : "var(--neon-green)";
+        
+        const usdVal = Math.max(0, saldoAtual) / brlToUsdRate;
+        document.getElementById('usd-val').innerText = `LUCRO GLOBAL: $ ${usdVal.toFixed(2)} USD`;
     }
 
     function addLog(text) {
-        const consoleDiv = document.getElementById('console');
-        const line = document.createElement('div');
-        line.innerHTML = text;
-        consoleDiv.appendChild(line);
-        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        const c = document.getElementById('console');
+        const d = document.createElement('div');
+        d.innerHTML = text;
+        c.appendChild(d);
+        c.scrollTop = c.scrollHeight;
     }
 
-    document.addEventListener('keydown', e => {
-        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
-    });
-
-    setInterval(fetchOracleData, 60000);
+    setInterval(fetchOracle, 60000);
 </script>
 </body>
 </html>
