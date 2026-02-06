@@ -2,165 +2,207 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SandxCDD - Vault</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SandxCDD | Sovereign Neural Vault</title>
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.03);
-            --neon-border: rgba(61, 220, 132, 0.4);
-            --gold-btc: #F7931A;
-        }
-        
-        body, html { 
-            margin: 0; padding: 0; height: 100vh; 
-            background: #020202; overflow: hidden;
-            font-family: 'SF Pro Display', 'Inter', sans-serif;
+            --neon-green: #3DDC84;
+            --ios-blue: #007AFF;
+            --btc-orange: #F7931A;
+            --glass: rgba(255, 255, 255, 0.04);
+            --blur: blur(40px);
         }
 
-        /* 3D Neural Background - Movimento Vivo */
-        #neural-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #0d1117, #000);
-            z-index: -1;
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: #000; color: #fff;
+            font-family: -apple-system, "SF Pro Display", "Roboto", sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
         }
 
-        .vault-app {
-            width: 390px; height: 844px;
-            margin: auto; position: relative;
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px;
-            box-shadow: 0 0 100px rgba(0,0,0,1);
-            display: flex; flex-direction: column;
-            animation: appAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Fundo Neural Vivo (Simulação de GPU Clusters) */
+        #bg-canvas {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
-        /* Tela de Bloqueio IA */
-        #lock-screen {
-            position: absolute; inset: 0; z-index: 100;
-            background: #000; border-radius: 50px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.8s ease;
+        /* Frame do App (Proporção iPhone 16 Pro) */
+        .app-container {
+            width: 380px; height: 820px;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 55px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            animation: boot 1s ease-out;
         }
 
-        .face-id-ring {
-            width: 80px; height: 80px; border: 2px solid var(--neon-border);
-            border-radius: 20px; animation: scan 2s infinite;
+        /* Tela de Autenticação */
+        #auth-layer {
+            position: absolute; inset: 0; z-index: 1000;
+            background: #000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Cartão 3D Flutuante */
+        .face-id-scanner {
+            width: 100px; height: 100px; border: 2px solid var(--neon-green);
+            border-radius: 30px; position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .face-id-scanner::after {
+            content: ""; position: absolute; width: 100%; height: 2px;
+            background: var(--neon-green); top: 0; animation: scanLine 2s infinite;
+        }
+
+        /* Dashboard Principal */
+        .header { padding: 50px 30px 20px; }
+        .dynamic-island {
+            width: 120px; height: 35px; background: #000;
+            margin: -35px auto 20px; border-radius: 20px;
+            border: 1px solid #222; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; color: var(--neon-green);
+        }
+
         .main-card {
-            margin: 30px; padding: 30px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border-radius: 35px; border: 1px solid var(--neon-border);
-            transform-style: preserve-3d;
-            perspective: 1000px;
-        }
-
-        .balance-label { font-size: 11px; opacity: 0.5; letter-spacing: 2px; }
-        .main-value { font-size: 42px; font-weight: 800; margin: 15px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-
-        /* Grade de Ativos Soberanos */
-        .assets-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 30px;
-        }
-
-        .asset-item {
-            background: var(--glass); padding: 20px; border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0));
+            margin: 0 25px; padding: 30px; border-radius: 35px;
+            border: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
 
-        /* Log de Sharding Parallax Live */
-        .live-parallax-feed {
-            height: 150px; margin: 30px; background: rgba(0,0,0,0.4);
-            border-radius: 20px; font-family: monospace; font-size: 10px;
-            padding: 15px; color: var(--neon-border); overflow: hidden;
+        .balance-title { font-size: 10px; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; }
+        .balance-value { font-size: 44px; font-weight: 800; margin: 10px 0; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding: 25px;
         }
 
-        .btn-liquidate {
-            margin: 0 30px 40px; padding: 20px;
-            background: #fff; color: #000; border: none;
-            border-radius: 30px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(61, 220, 132, 0.3);
-            transition: 0.3s;
+        .stat-box {
+            background: var(--glass); padding: 15px; border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        @keyframes scan { 0%, 100% { scale: 1; } 50% { scale: 1.1; border-color: #fff; } }
-        @keyframes appAppear { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        /* Log de Tempo Real (Parallax Engine) */
+        .parallax-console {
+            background: rgba(0,0,0,0.5); margin: 0 25px; height: 180px;
+            border-radius: 20px; padding: 15px; font-family: "Courier New", monospace;
+            font-size: 9px; color: var(--neon-green); overflow-y: hidden;
+            border-left: 2px solid var(--neon-green);
+        }
+
+        .btn-action {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            width: 85%; padding: 22px; border-radius: 35px;
+            background: #fff; color: #000; border: none; font-weight: 900;
+            cursor: pointer; transition: 0.3s;
+        }
+
+        .btn-action:active { scale: 0.95; background: var(--neon-green); }
+
+        @keyframes scanLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+        @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<div id="neural-bg"></div>
+<div id="bg-canvas"></div>
 
-<div class="vault-app">
-    <div id="lock-screen" onclick="unlock()">
-        <div class="face-id-ring"></div>
-        <p style="margin-top: 20px; font-size: 12px; color: #666;">AUTENTICAÇÃO NEURAL REQUERIDA</p>
-        <p style="font-size: 10px; color: var(--neon-border);">Clique para simular FaceID</p>
+<div class="app-container">
+    <div id="auth-layer" onclick="authenticate()">
+        <div class="face-id-scanner"></div>
+        <p style="margin-top: 30px; font-weight: 200; letter-spacing: 1px;">Sovereign ID Required</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Tap to verify</p>
     </div>
 
-    <div style="height: 40px;"></div> <div class="main-card">
-        <div class="balance-label">DISPONÍVEL PARA LIQUIDAÇÃO</div>
-        <div class="main-value" id="disp">R$ 4.490,00</div>
-        <div style="font-size: 12px; color: var(--neon-border);">Ganhos/Hora: R$ 28,063</div>
+    <div class="header">
+        <div class="dynamic-island">P2P ENCRYPTED</div>
+        <h2 style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
-    <div class="assets-grid">
-        <div class="asset-item">
-            <div class="balance-label" style="color: var(--gold-btc);">BITCOIN</div>
-            <div class="value">₿ 0.000128</div>
-        </div>
-        <div class="asset-item">
-            <div class="balance-label" style="color: #fff;">DIVIDENDOS TAR</div>
-            <div class="value">+ 1.212 u</div>
+    <div class="main-card">
+        <div class="balance-title">Patrimônio Líquido Hoje</div>
+        <div class="balance-value" id="total-val">R$ 4.490,00</div>
+        <div style="color: var(--neon-green); font-size: 12px; font-weight: bold;">
+            Taxa Gov: 5% Liquidada ✅
         </div>
     </div>
 
-    <div class="live-parallax-feed" id="logs">
-        > NODE_ID: 0x7E... ACTIVE<br>
-        > WAN SCALE MESH: 256 GPUs<br>
-        > GOV_BRAZIL_ORACLE: CONNECTED<br>
-        > TAX_ROUTING: 5% (SANDBOX_V2)<br>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <small style="color: var(--btc-orange)">BITCOIN</small>
+            <div id="btc-val" style="font-size: 15px; margin-top: 5px;">₿ 0.000128</div>
+        </div>
+        <div class="stat-box">
+            <small>RESERVA TAR</small>
+            <div id="tar-val" style="font-size: 15px; margin-top: 5px;">1.212 u</div>
+        </div>
     </div>
 
-    <button class="btn-liquidate" onclick="triggerLiquidation()">LIQUIDAR DIA DE TRABALHO</button>
+    <div class="parallax-console" id="console">
+        > initializing neural_mesh_v2...<br>
+        > handshake: gov.br_gateway [OK]<br>
+        > protocols: zero_knowledge_proofs active<br>
+        > shard_node_01: rtx_5090_connected<br>
+    </div>
+
+    <button class="btn-action" onclick="liquidate()">LIQUIDAR TRABALHO</button>
 </div>
 
 <script>
-    function unlock() {
-        const lock = document.getElementById('lock-screen');
-        lock.style.opacity = '0';
-        setTimeout(() => lock.style.display = 'none', 800);
+    // Configurações do Oráculo SandxCDD
+    let baseValue = 4490.00;
+    
+    function authenticate() {
+        const auth = document.getElementById('auth-layer');
+        auth.style.opacity = '0';
+        setTimeout(() => auth.style.display = 'none', 800);
     }
 
-    function triggerLiquidation() {
-        const btn = document.querySelector('.btn-liquidate');
-        btn.innerText = "LIQUIDANDO VIA PARALLAX...";
+    function updateMetrics() {
+        // Simula a IA recalculando com base no valor hora do governo
+        const console = document.getElementById('console');
+        const lines = [
+            `> oracle_update: btc_price synced.`,
+            `> parallax_shard: ${Math.random().toString(16).substr(2,6)} verified.`,
+            `> tax_distribution: 5% routed to treasury.`,
+            `> workers: 14 nodes active (11ms lat).`
+        ];
+        
+        const newLine = document.createElement('div');
+        newLine.innerHTML = lines[Math.floor(Math.random() * lines.length)];
+        console.appendChild(newLine);
+        
+        if (console.childNodes.length > 25) console.removeChild(console.firstChild);
+        console.scrollTop = console.scrollHeight;
+    }
+
+    function liquidate() {
+        const btn = document.querySelector('.btn-action');
+        btn.innerText = "LIQUIDANDO...";
         btn.style.background = "#3DDC84";
         
-        // Simulação de transação via DREX/Blockchain
         setTimeout(() => {
-            alert("Operação Finalizada. Impostos pagos e ativos distribuídos.");
-            btn.innerText = "DIA LIQUIDADO ✅";
+            alert("Liquidação concluída. Salário líquido depositado e encargos gov pagos automaticamente via Smart Contract.");
+            btn.innerText = "LIQUIDADO ✅";
             btn.disabled = true;
-        }, 2000);
+        }, 1500);
     }
 
-    // Gerador de Logs Infinitos (Movimento Vivo da IA)
-    setInterval(() => {
-        const logs = document.getElementById('logs');
-        const lines = [
-            `> Shard ${Math.random().toString(16).substring(2,8)} verified.`,
-            `> RTT Profile: 11ms. Path optimized.`,
-            `> Gov_Seal: Hash_Validated.`,
-            `> Distributed Ledger sync... OK`
-        ];
-        logs.innerHTML += `<br>${lines[Math.floor(Math.random() * lines.length)]}`;
-        if(logs.childNodes.length > 20) logs.removeChild(logs.firstChild);
-        logs.scrollTop = logs.scrollHeight;
-    }, 2000);
+    // Mantém o robô "vivo" e em movimento
+    setInterval(updateMetrics, 2500);
+
+    // Proteção de código contra inspeção básica
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123) return false;
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+    }
 </script>
 
 </body>
