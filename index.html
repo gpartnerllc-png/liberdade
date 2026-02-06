@@ -21,7 +21,6 @@
             overflow: hidden;
         }
 
-        /* FUNDO NEURAL DINÂMICO */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
@@ -115,18 +114,18 @@
     <div id="auth-layer" onclick="authenticate()">
         <div class="face-id-scanner"></div>
         <p style="margin-top: 30px; font-weight: 200; letter-spacing: 2px;">SANDX GLOBAL ID</p>
-        <p style="color: var(--neon-green); font-size: 11px;">Verify Sovereignty</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Verify Sovereignty (NFC/QR)</p>
     </div>
 
     <div class="header">
-        <div class="dynamic-island" id="node-status">ORACLE: SYNCING...</div>
+        <div class="dynamic-island" id="node-status">ORACLE: STANDBY</div>
         <h2 id="user-greeting" style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
     <div class="main-card">
         <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO (DREX)</div>
-        <div class="balance-value" id="total-val">R$ 4.490,00</div>
-        <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">SYNCING USD...</div>
+        <div class="balance-value" id="total-val">R$ 0,00</div>
+        <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">AGUARDANDO START...</div>
         <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Ganhos/Hora: R$ 38,50</div>
     </div>
 
@@ -136,22 +135,21 @@
             <div id="btc-price" style="font-size: 13px; margin-top: 5px; font-weight: bold;">₿ Loading...</div>
         </div>
         <div class="stat-box">
-            <small>YIELD (ISRAEL)</small>
-            <div id="tar-val" style="font-size: 15px; margin-top: 5px; font-weight: bold;">1.212 u</div>
+            <small>STATUS IA</small>
+            <div id="work-status" style="font-size: 15px; margin-top: 5px; font-weight: bold; color: #ff3b30;">OFFLINE</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
         > system: protocols initialized.<br>
-        > security: unit_8200_encryption active.<br>
-        > network: parallax_mesh_v4 online.<br>
+        > awaiting: manager_nfc_auth...<br>
     </div>
 
-    <button class="btn-action" onclick="liquidate()">LIQUIDAR TRABALHO</button>
+    <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR TRABALHO</button>
 </div>
 
 <script>
-    /* 1. MOTOR DE PARTÍCULAS */
+    /* 1. MOTOR GRÁFICO SOBERANO */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -176,94 +174,90 @@
     for (let i = 0; i < 70; i++) particles.push(new Particle());
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.update(); p.draw();
-            particles.forEach(p2 => {
-                let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                if (dist < 100) {
-                    ctx.strokeStyle = `rgba(61, 220, 132, ${1 - dist/100})`;
-                    ctx.lineWidth = 0.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-                }
-            });
-        });
+        particles.forEach(p => { p.update(); p.draw(); });
         requestAnimationFrame(animate);
     }
     window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    /* 2. INTELIGÊNCIA DE CÁLCULO REAL-TIME */
-    let baseValue = 4490.00;
+    /* 2. IA DE CÁLCULO AO VIVO E GESTÃO DE PONTO */
+    let accumulatedBalance = 0.00;
     const gainPerHour = 38.50;
     const gainPerSecond = gainPerHour / 3600;
-    let brlToUsdRate = 5.00; // Fallback inicial
+    let isWorking = false;
+    let workTimer;
+    let brlToUsdRate = 5.60; 
 
-    function updateNeuralBalance() {
-        baseValue += gainPerSecond;
-        document.getElementById('total-val').innerText = `R$ ${baseValue.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        
-        // Atualiza valor em USD baseado no rate do Oráculo
-        const usdValue = baseValue / brlToUsdRate;
-        document.getElementById('usd-val').innerText = `GLOBAL: $ ${usdValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
-    }
-
-    /* 3. ORÁCULO DE MERCADO */
-    async function fetchGlobalData() {
+    async function fetchOracleData() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
             const data = await res.json();
-            
             const btcBrl = data.bitcoin.brl;
-            const btcUsd = data.bitcoin.usd;
-            brlToUsdRate = btcBrl / btcUsd;
-
+            brlToUsdRate = btcBrl / data.bitcoin.usd;
             document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
             document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
-            addLog(`> market: sync_btc_rate @ ${btcBrl} [OK]`);
-        } catch (e) {
-            addLog(`> system: link_bypass active.`);
+        } catch (e) { console.log("Oracle Link Error"); }
+    }
+
+    function toggleWork() {
+        const btn = document.getElementById('main-btn');
+        const statusBox = document.getElementById('work-status');
+        
+        if (!isWorking) {
+            // INICIAR TRABALHO
+            isWorking = true;
+            btn.innerText = "PARAR / INTERVALO";
+            btn.style.background = "#ff3b30";
+            btn.style.color = "#fff";
+            statusBox.innerText = "ONLINE";
+            statusBox.style.color = "var(--neon-green)";
+            addLog(`> work_session: started_at_${new Date().toLocaleTimeString()}`);
+            workTimer = setInterval(runNeuralEngine, 1000);
+        } else {
+            // PARAR / INTERVALO
+            isWorking = false;
+            btn.innerText = "RETORNAR AO TRABALHO";
+            btn.style.background = "#fff";
+            btn.style.color = "#000";
+            statusBox.innerText = "PAUSADO";
+            statusBox.style.color = "#ffcc00";
+            addLog(`> work_session: paused_at_${new Date().toLocaleTimeString()}`);
+            clearInterval(workTimer);
         }
     }
 
+    function runNeuralEngine() {
+        accumulatedBalance += gainPerSecond;
+        document.getElementById('total-val').innerText = `R$ ${accumulatedBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        
+        const usdVal = accumulatedBalance / brlToUsdRate;
+        document.getElementById('usd-val').innerText = `CONVERSÃO IA: $ ${usdVal.toFixed(2)} USD`;
+    }
+
     function addLog(text) {
-        const console = document.getElementById('console');
-        const div = document.createElement('div');
-        div.innerHTML = text;
-        console.appendChild(div);
-        if (console.childNodes.length > 20) console.removeChild(console.firstChild);
-        console.scrollTop = console.scrollHeight;
+        const consoleDiv = document.getElementById('console');
+        const line = document.createElement('div');
+        line.innerHTML = text;
+        consoleDiv.appendChild(line);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
     }
 
     function authenticate() {
-        const name = "Gabriel"; // Identidade detectada pela IA
-        document.getElementById('user-greeting').innerText = `Olá, ${name}.`;
+        // Simula reconhecimento do QR Code do Gerente / NFC
+        addLog(`> nfc_auth: manager_key_verified [OK]`);
         document.getElementById('auth-layer').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('auth-layer').style.display = 'none';
-            fetchGlobalData();
-            setInterval(updateNeuralBalance, 1000); // Inicia o robô de cálculo (1s)
+            fetchOracleData();
+            document.getElementById('user-greeting').innerText = `Olá, Gabriel.`;
         }, 800);
     }
 
-    function liquidate() {
-        const btn = document.querySelector('.btn-action');
-        btn.innerText = "CONTRATO EXECUTADO...";
-        btn.style.background = "#3DDC84";
-        setTimeout(() => {
-            alert("Liquidação Neural Concluída.\nAtivos movidos para Cold Wallet.");
-            btn.innerText = "LIQUIDADO ✅";
-            btn.disabled = true;
-        }, 2000);
-    }
-
-    /* 4. TRAVAS DE SEGURANÇA SOBERANA */
+    /* 3. SEGURANÇA E PROTOCOLO GOVERNO */
     document.addEventListener('keydown', e => {
         if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
     });
 
-    setInterval(fetchGlobalData, 30000); // Sync Oráculo a cada 30s
-    setInterval(() => {
-        const nodes = ["US_EAST", "IL_TELAVIV", "BR_SAOPAULO"];
-        addLog(`> node_${nodes[Math.floor(Math.random()*3)]}: heart_beat verified.`);
-    }, 8000);
+    setInterval(fetchOracleData, 60000);
 </script>
 
 </body>
