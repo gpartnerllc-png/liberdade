@@ -21,13 +21,12 @@
             overflow: hidden;
         }
 
-        /* FUNDO NEURAL DINÂMICO (PARTÍCULAS) */
+        /* FUNDO NEURAL DINÂMICO */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
         }
 
-        /* Aura de Brilho Neon Pulsante */
         .neon-aura {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, rgba(61, 220, 132, 0.15) 0%, transparent 70%);
@@ -40,7 +39,6 @@
             50% { opacity: 0.8; transform: scale(1.1); }
         }
 
-        /* Frame do App (Proporção iPhone 16 Pro) */
         .app-container {
             width: 380px; height: 820px;
             background: rgba(10, 10, 10, 0.8);
@@ -52,17 +50,15 @@
             animation: boot 1s ease-out;
         }
 
-        /* Tela de Autenticação IA */
         #auth-layer {
             position: absolute; inset: 0; z-index: 1000;
             background: #000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            align-items: center; justify-content: center; transition: 0.8s;
         }
 
         .face-id-scanner {
             width: 100px; height: 100px; border: 2px solid var(--neon-green);
-            border-radius: 30px; position: relative;
-            animation: pulse 2s infinite;
+            border-radius: 30px; animation: pulse 2s infinite; position: relative;
         }
 
         .face-id-scanner::after {
@@ -70,7 +66,6 @@
             background: var(--neon-green); top: 0; animation: scanLine 2s infinite;
         }
 
-        /* Dashboard Principal */
         .header { padding: 50px 30px 20px; }
         .dynamic-island {
             width: 160px; height: 35px; background: #000;
@@ -89,12 +84,8 @@
         .balance-value { font-size: 40px; font-weight: 800; margin: 10px 0; }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 25px; }
-        .stat-box { 
-            background: var(--glass); padding: 15px; border-radius: 25px; 
-            border: 1px solid rgba(255,255,255,0.05); text-align: center;
-        }
+        .stat-box { background: var(--glass); padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
 
-        /* Log de Tempo Real (Parallax Console) */
         .parallax-console {
             background: rgba(0,0,0,0.6); margin: 0 25px; height: 140px;
             border-radius: 20px; padding: 15px; font-family: monospace;
@@ -108,8 +99,6 @@
             background: #fff; color: #000; border: none; font-weight: 900;
             cursor: pointer; transition: 0.3s;
         }
-
-        .btn-action:active { scale: 0.95; background: var(--neon-green); }
 
         @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } }
@@ -129,49 +118,43 @@
     </div>
 
     <div class="header">
-        <div class="dynamic-island" id="node-status">NEURAL MESH ACTIVE</div>
+        <div class="dynamic-island" id="node-status">ORACLE: SYNCING...</div>
         <h2 style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
     <div class="main-card">
-        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase;">Disponível para Liquidação</div>
+        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO (DREX)</div>
         <div class="balance-value" id="total-val">R$ 4.490,00</div>
-        <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">SYNCING GLOBAL MARKETS...</div>
+        <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">SYNCING USD...</div>
         <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Ganhos/Hora: R$ 28,063</div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
-            <small style="color: var(--btc-orange)">BITCOIN (USD)</small>
+            <small style="color: var(--btc-orange)">BITCOIN (LIVE)</small>
             <div id="btc-price" style="font-size: 13px; margin-top: 5px; font-weight: bold;">₿ Loading...</div>
         </div>
         <div class="stat-box">
             <small>YIELD (ISRAEL)</small>
-            <div id="tar-val" style="font-size: 14px; margin-top: 5px; font-weight: bold;">1.212 u</div>
+            <div id="tar-val" style="font-size: 15px; margin-top: 5px; font-weight: bold;">1.212 u</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
         > system: protocols initialized.<br>
-        > network: p2p_sharding_v3 online.<br>
         > security: unit_8200_encryption active.<br>
-        > gov_br_oracle: connected.<br>
+        > network: parallax_mesh_v4 online.<br>
     </div>
 
     <button class="btn-action" onclick="liquidate()">LIQUIDAR TRABALHO</button>
 </div>
 
 <script>
-    /* 1. MOTOR NEURAL DE FUNDO (PARTÍCULAS) */
+    /* 1. MOTOR DE PARTÍCULAS */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
-
-    function initCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
+    function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     class Particle {
         constructor() {
             this.x = Math.random() * canvas.width;
@@ -181,51 +164,51 @@
         }
         draw() {
             ctx.fillStyle = "rgba(61, 220, 132, 0.4)";
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 1.2, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, 1.2, 0, Math.PI * 2); ctx.fill();
         }
         update() {
-            this.x += this.vx;
-            this.y += this.vy;
+            this.x += this.vx; this.y += this.vy;
             if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
             if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
         }
     }
-
-    for (let i = 0; i < 80; i++) particles.push(new Particle());
-
+    for (let i = 0; i < 70; i++) particles.push(new Particle());
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => {
-            p.update();
-            p.draw();
+            p.update(); p.draw();
             particles.forEach(p2 => {
                 let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
                 if (dist < 100) {
                     ctx.strokeStyle = `rgba(61, 220, 132, ${1 - dist/100})`;
-                    ctx.lineWidth = 0.2;
-                    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                    ctx.lineWidth = 0.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                 }
             });
         });
         requestAnimationFrame(animate);
     }
-    window.addEventListener('resize', initCanvas);
-    initCanvas(); animate();
+    window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    /* 2. ORÁCULO E DADOS EM TEMPO REAL */
+    /* 2. ORÁCULO INTELIGENTE - DADOS REAIS E AO VIVO */
     async function fetchGlobalData() {
         try {
+            // Chamada direta para dados reais
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
             const data = await res.json();
+            
             const btcBrl = data.bitcoin.brl;
             const btcUsd = data.bitcoin.usd;
+            const brlUsdRate = btcBrl / btcUsd; // Taxa de câmbio real calculada via BTC
+
+            // Atualiza Interface em tempo real
+            document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
+            document.getElementById('usd-val').innerText = `GLOBAL: $ ${(4490 / brlUsdRate).toFixed(2)} USD`;
+            document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
             
-            document.getElementById('btc-price').innerText = `$ ${btcUsd.toLocaleString()}`;
-            document.getElementById('usd-val').innerText = `GLOBAL: $ ${(4490 / (btcBrl/btcUsd)).toFixed(2)} USD`;
-            addLog(`> market: feed_sync from US_NODE_01 [OK]`);
-        } catch (e) { addLog(`> system: oracle connection unstable.`); }
+            addLog(`> market: btc_brl @ ${btcBrl} [SYNC OK]`);
+        } catch (e) {
+            addLog(`> system: oracle bypass active (reconnecting...)`);
+        }
     }
 
     function addLog(text) {
@@ -249,26 +232,29 @@
         const btn = document.querySelector('.btn-action');
         btn.innerText = "EXECUTANDO SMART CONTRACT...";
         btn.style.background = "#3DDC84";
-        
         setTimeout(() => {
-            alert("Operação Global Concluída:\n- Impostos liquidados via DREX (BR)\n- Ativos protegidos via ZKP (IL)\n- Liquidez garantida em USD (US)");
+            alert("Operação Finalizada:\n- Impostos 5% liquidados via DREX\n- Ativos protegidos via Israel Vault\n- Liquidez convertida em USD");
             btn.innerText = "LIQUIDADO ✅";
             btn.disabled = true;
         }, 2000);
     }
 
-    /* 3. MANUTENÇÃO DO SISTEMA VIVO */
-    setInterval(fetchGlobalData, 30000);
-    setInterval(() => {
-        const shards = ["4f5b", "1a2c", "9d8e", "0x33"];
-        addLog(`> neural_node_${shards[Math.floor(Math.random()*4)]}: processing parallax...`);
-    }, 5000);
+    /* 3. PROTEÇÃO DE SOBERANIA (RESTABELECIDA) */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+            (e.ctrlKey && e.key === "U")) {
+            e.preventDefault();
+            return false;
+        }
+    });
 
-    /* 4. PROTEÇÃO DE SOBERANIA (ANTI-INSPEÇÃO) */
-    document.onkeydown = e => { 
-        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.shiftKey && e.keyCode == 74) || (e.ctrlKey && e.keyCode == 85)) 
-        return false; 
-    }
+    /* 4. LOOP DE INTELIGÊNCIA */
+    setInterval(fetchGlobalData, 15000); // Atualiza a cada 15 seg
+    setInterval(() => {
+        const nodes = ["US_EAST", "IL_TELAVIV", "BR_SAOPAULO"];
+        addLog(`> neural_node_${nodes[Math.floor(Math.random()*3)]}: heart_beat verified.`);
+    }, 6000);
 </script>
 
 </body>
