@@ -54,6 +54,7 @@
             position: absolute; inset: 0; z-index: 1000;
             background: #000; display: flex; flex-direction: column;
             align-items: center; justify-content: center; transition: 0.8s;
+            cursor: pointer;
         }
 
         .face-id-scanner {
@@ -119,7 +120,7 @@
 
     <div class="header">
         <div class="dynamic-island" id="node-status">ORACLE: SYNCING...</div>
-        <h2 style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
+        <h2 id="user-greeting" style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
     <div class="main-card">
@@ -189,25 +190,36 @@
     }
     window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    /* 2. ORÁCULO INTELIGENTE - DADOS REAIS E AO VIVO */
+    /* 2. INTELIGÊNCIA DE CÁLCULO REAL-TIME */
+    let baseValue = 4490.00;
+    const gainPerHour = 38.50;
+    const gainPerSecond = gainPerHour / 3600;
+    let brlToUsdRate = 5.00; // Fallback inicial
+
+    function updateNeuralBalance() {
+        baseValue += gainPerSecond;
+        document.getElementById('total-val').innerText = `R$ ${baseValue.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        
+        // Atualiza valor em USD baseado no rate do Oráculo
+        const usdValue = baseValue / brlToUsdRate;
+        document.getElementById('usd-val').innerText = `GLOBAL: $ ${usdValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+    }
+
+    /* 3. ORÁCULO DE MERCADO */
     async function fetchGlobalData() {
         try {
-            // Chamada direta para dados reais
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
             const data = await res.json();
             
             const btcBrl = data.bitcoin.brl;
             const btcUsd = data.bitcoin.usd;
-            const brlUsdRate = btcBrl / btcUsd; // Taxa de câmbio real calculada via BTC
+            brlToUsdRate = btcBrl / btcUsd;
 
-            // Atualiza Interface em tempo real
             document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
-            document.getElementById('usd-val').innerText = `GLOBAL: $ ${(4490 / brlUsdRate).toFixed(2)} USD`;
             document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
-            
-            addLog(`> market: btc_brl @ ${btcBrl} [SYNC OK]`);
+            addLog(`> market: sync_btc_rate @ ${btcBrl} [OK]`);
         } catch (e) {
-            addLog(`> system: oracle bypass active (reconnecting...)`);
+            addLog(`> system: link_bypass active.`);
         }
     }
 
@@ -221,40 +233,37 @@
     }
 
     function authenticate() {
+        const name = "Gabriel"; // Identidade detectada pela IA
+        document.getElementById('user-greeting').innerText = `Olá, ${name}.`;
         document.getElementById('auth-layer').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('auth-layer').style.display = 'none';
             fetchGlobalData();
+            setInterval(updateNeuralBalance, 1000); // Inicia o robô de cálculo (1s)
         }, 800);
     }
 
     function liquidate() {
         const btn = document.querySelector('.btn-action');
-        btn.innerText = "EXECUTANDO SMART CONTRACT...";
+        btn.innerText = "CONTRATO EXECUTADO...";
         btn.style.background = "#3DDC84";
         setTimeout(() => {
-            alert("Operação Finalizada:\n- Impostos 5% liquidados via DREX\n- Ativos protegidos via Israel Vault\n- Liquidez convertida em USD");
+            alert("Liquidação Neural Concluída.\nAtivos movidos para Cold Wallet.");
             btn.innerText = "LIQUIDADO ✅";
             btn.disabled = true;
         }, 2000);
     }
 
-    /* 3. PROTEÇÃO DE SOBERANIA (RESTABELECIDA) */
-    document.addEventListener('keydown', function(e) {
-        if (e.key === "F12" || 
-            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
-            (e.ctrlKey && e.key === "U")) {
-            e.preventDefault();
-            return false;
-        }
+    /* 4. TRAVAS DE SEGURANÇA SOBERANA */
+    document.addEventListener('keydown', e => {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
     });
 
-    /* 4. LOOP DE INTELIGÊNCIA */
-    setInterval(fetchGlobalData, 15000); // Atualiza a cada 15 seg
+    setInterval(fetchGlobalData, 30000); // Sync Oráculo a cada 30s
     setInterval(() => {
         const nodes = ["US_EAST", "IL_TELAVIV", "BR_SAOPAULO"];
-        addLog(`> neural_node_${nodes[Math.floor(Math.random()*3)]}: heart_beat verified.`);
-    }, 6000);
+        addLog(`> node_${nodes[Math.floor(Math.random()*3)]}: heart_beat verified.`);
+    }, 8000);
 </script>
 
 </body>
