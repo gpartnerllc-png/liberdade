@@ -2,40 +2,118 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel SandxCDD - Gestão de Ativos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SandxCDD - Sovereign Interface</title>
     <style>
-        :root { --primary: #004a8d; --secondary: #2ecc71; --dark: #2c3e50; }
-        body { font-family: sans-serif; background: #f4f7f6; color: var(--dark); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
-        .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #fafafa; }
-        .highlight { font-size: 24px; color: var(--secondary); font-weight: bold; }
-        .btn { display: block; width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 20px; }
-        .footer { text-align: center; padding: 15px; font-size: 12px; color: #777; }
+        :root {
+            --glass: rgba(255, 255, 255, 0.7);
+            --blur: blur(20px);
+            --apple-blue: #007AFF;
+            --android-green: #3DDC84;
+            --deep-space: #0b0e11;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1a1a2e, #000);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .iphone-frame {
+            width: 380px;
+            height: 760px;
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            border-radius: 45px;
+            border: 4px solid #333;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .dynamic-island {
+            width: 120px;
+            height: 35px;
+            background: #000;
+            margin: 15px auto;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--android-green);
+        }
+
+        .content { padding: 25px; }
+
+        .balance-card {
+            background: linear-gradient(135deg, var(--apple-blue), #5856D6);
+            padding: 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+        }
+
+        .token-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .asset-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-action {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            padding: 18px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-action:hover { scale: 1.05; background: var(--android-green); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header"><h1>SandxCDD</h1><p>Blockchain Ativo</p></div>
-        <div class="grid">
-            <div class="card">
-                <h3>Resumo do Empregador</h3>
-                <p>Economia Mensal: <span class="highlight">R$ 960,00</span></p>
-                <p>Status: <strong>Segurança Jurídica Plena</strong></p>
-                <p>Escala Ativa: 5x2 Flexível</p>
+    <div class="iphone-frame">
+        <div class="dynamic-island">📡 STARLINK ACTIVE</div>
+        <div class="content">
+            <h2 style="font-weight: 200;">Olá, Soberano.</h2>
+            <div class="balance-card">
+                <small>Salário Bruto Disponível</small>
+                <div style="font-size: 32px; font-weight: 700;">R$ 4.490,00</div>
             </div>
-            <div class="card">
-                <h3>Carteira do Empregado</h3>
-                <p>Salário Bruto Digital: <span class="highlight">R$ 4.490,00</span></p>
-                <p>Patrimônio em Tokens TAR: 1.250 unidades</p>
-                <p>Reserva Criptoin: 0.00045 BTC</p>
+            <div class="token-matrix">
+                <div class="asset-box">
+                    <small>Bitcoin (BTC)</small>
+                    <div style="color: #F7931A;">₿ 0.00045</div>
+                </div>
+                <div class="asset-box">
+                    <small>Tokens TAR</small>
+                    <div style="color: var(--android-green);">1.250 u</div>
+                </div>
             </div>
+            <p style="font-size: 12px; opacity: 0.6; margin-top: 20px;">
+                Criptografia Unit 8200 ativa. Contrato inteligente verificado pelo Oráculo Grok.
+            </p>
         </div>
-        <div style="padding: 0 20px 20px;">
-            <button class="btn" onclick="alert('Pagamento Processado via Smart Contract!')">Executar Ciclo de Pagamento</button>
-        </div>
-        <div class="footer">Lastreado pelo Fundo Soberano Nacional</div>
+        <button class="btn-action">LIQUIDAR DIA DE TRABALHO</button>
     </div>
 </body>
 </html>
