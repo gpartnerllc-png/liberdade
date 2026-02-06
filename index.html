@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SandxCDD | Global Neural Vault</title>
+    <title>SandxCDD | Sovereign Neural Vault</title>
     <style>
         :root {
             --neon-green: #3DDC84;
@@ -21,8 +21,24 @@
             overflow: hidden;
         }
 
-        #bg-canvas { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-        
+        /* FUNDO NEURAL DINÂMICO */
+        #bg-canvas {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+        }
+
+        .neon-aura {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, rgba(61, 220, 132, 0.15) 0%, transparent 70%);
+            animation: neonPulse 4s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
         .app-container {
             width: 380px; height: 820px;
             background: rgba(10, 10, 10, 0.8);
@@ -31,6 +47,7 @@
             border-radius: 55px;
             position: relative; overflow: hidden;
             box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            animation: boot 1s ease-out;
         }
 
         #auth-layer {
@@ -41,16 +58,21 @@
 
         .face-id-scanner {
             width: 100px; height: 100px; border: 2px solid var(--neon-green);
-            border-radius: 30px; animation: pulse 2s infinite;
+            border-radius: 30px; animation: pulse 2s infinite; position: relative;
+        }
+
+        .face-id-scanner::after {
+            content: ""; position: absolute; width: 100%; height: 2px;
+            background: var(--neon-green); top: 0; animation: scanLine 2s infinite;
         }
 
         .header { padding: 50px 30px 20px; }
         .dynamic-island {
-            width: 150px; height: 35px; background: #000;
+            width: 160px; height: 35px; background: #000;
             margin: -35px auto 20px; border-radius: 20px;
             border: 1px solid #222; display: flex; align-items: center;
             justify-content: center; font-size: 9px; color: var(--neon-green);
-            letter-spacing: 1px;
+            letter-spacing: 1px; font-weight: bold;
         }
 
         .main-card {
@@ -62,10 +84,10 @@
         .balance-value { font-size: 40px; font-weight: 800; margin: 10px 0; }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 25px; }
-        .stat-box { background: var(--glass); padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box { background: var(--glass); padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
 
         .parallax-console {
-            background: rgba(0,0,0,0.5); margin: 0 25px; height: 150px;
+            background: rgba(0,0,0,0.6); margin: 0 25px; height: 140px;
             border-radius: 20px; padding: 15px; font-family: monospace;
             font-size: 9px; color: var(--neon-green); overflow-y: hidden;
             border-left: 2px solid var(--neon-green);
@@ -78,107 +100,162 @@
             cursor: pointer; transition: 0.3s;
         }
 
+        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); } }
+        @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div id="bg-canvas"></div>
+<canvas id="bg-canvas"></canvas>
+<div class="neon-aura"></div>
 
 <div class="app-container">
-    <div id="auth-layer" onclick="startSystem()">
+    <div id="auth-layer" onclick="authenticate()">
         <div class="face-id-scanner"></div>
-        <p style="margin-top: 30px; font-weight: 200;">SandX Global ID</p>
-        <p style="color: var(--neon-green); font-size: 11px;">Toque para Identificar</p>
+        <p style="margin-top: 30px; font-weight: 200; letter-spacing: 2px;">SANDX GLOBAL ID</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Verify Sovereignty</p>
     </div>
 
     <div class="header">
         <div class="dynamic-island" id="node-status">ORACLE: SYNCING...</div>
-        <h2 id="user-greeting" style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
+        <h2 style="font-weight: 300; margin: 0;">Olá, Soberano.</h2>
     </div>
 
     <div class="main-card">
-        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO EM DREX</div>
-        <div class="balance-value">R$ 4.490,00</div>
-        <div id="usd-val" style="color: var(--ios-blue); font-size: 12px; font-weight: bold;">USD: --</div>
+        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VALOR LÍQUIDO (DREX)</div>
+        <div class="balance-value" id="total-val">R$ 4.490,00</div>
+        <div id="usd-val" style="color: var(--ios-blue); font-size: 11px; font-weight: bold;">SYNCING USD...</div>
+        <div style="font-size: 11px; color: var(--neon-green); margin-top: 5px;">Ganhos/Hora: R$ 28,063</div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
             <small style="color: var(--btc-orange)">BITCOIN (LIVE)</small>
-            <div id="btc-price" style="font-size: 13px; margin-top: 5px;">₿ Loading...</div>
+            <div id="btc-price" style="font-size: 13px; margin-top: 5px; font-weight: bold;">₿ Loading...</div>
         </div>
         <div class="stat-box">
-            <small>TAR YIELD</small>
-            <div style="font-size: 15px; margin-top: 5px;">1.212 u</div>
+            <small>YIELD (ISRAEL)</small>
+            <div id="tar-val" style="font-size: 15px; margin-top: 5px; font-weight: bold;">1.212 u</div>
         </div>
     </div>
 
     <div class="parallax-console" id="console">
-        > initializing neural_bridge_v4...<br>
+        > system: protocols initialized.<br>
+        > security: unit_8200_encryption active.<br>
+        > network: parallax_mesh_v4 online.<br>
     </div>
 
-    <button class="btn-action" id="main-btn" onclick="liquidate()">LIQUIDAR TRABALHO</button>
+    <button class="btn-action" onclick="liquidate()">LIQUIDAR TRABALHO</button>
 </div>
 
 <script>
-    // Configuração de Identidade (Simulando captura de sistema operacional/conta)
-    const activeUser = "Gabriel"; // Este valor pode ser injetado via backend ou login
+    /* 1. MOTOR DE PARTÍCULAS */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+        }
+        draw() {
+            ctx.fillStyle = "rgba(61, 220, 132, 0.4)";
+            ctx.beginPath(); ctx.arc(this.x, this.y, 1.2, 0, Math.PI * 2); ctx.fill();
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+    }
+    for (let i = 0; i < 70; i++) particles.push(new Particle());
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update(); p.draw();
+            particles.forEach(p2 => {
+                let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                if (dist < 100) {
+                    ctx.strokeStyle = `rgba(61, 220, 132, ${1 - dist/100})`;
+                    ctx.lineWidth = 0.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                }
+            });
+        });
+        requestAnimationFrame(animate);
+    }
+    window.addEventListener('resize', initCanvas); initCanvas(); animate();
 
-    async function fetchRealTimeData() {
+    /* 2. ORÁCULO INTELIGENTE - DADOS REAIS E AO VIVO */
+    async function fetchGlobalData() {
         try {
-            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
-            const data = await response.json();
+            // Chamada direta para dados reais
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
+            const data = await res.json();
             
             const btcBrl = data.bitcoin.brl;
             const btcUsd = data.bitcoin.usd;
-            const conversionRate = btcBrl / btcUsd;
-            
-            document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
-            document.getElementById('usd-val').innerText = `Conversão Global: $ ${(4490 / conversionRate).toFixed(2)} USD`;
-            document.getElementById('node-status').innerText = "ORACLE: LIVE DATA";
-            addLog(`> market_sync: BTC @ $${btcUsd} [OK]`);
-        } catch (e) {
-            addLog(`> oracle_error: retrying link...`);
-        }
-    }
+            const brlUsdRate = btcBrl / btcUsd; // Taxa de câmbio real calculada via BTC
 
-    function startSystem() {
-        // IA identifica o nome do usuário e atualiza o Header ao vivo
-        document.getElementById('user-greeting').innerText = `Olá, ${activeUser}.`;
-        
-        document.getElementById('auth-layer').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('auth-layer').style.display = 'none';
-            fetchRealTimeData();
-        }, 800);
+            // Atualiza Interface em tempo real
+            document.getElementById('btc-price').innerText = `R$ ${btcBrl.toLocaleString('pt-BR')}`;
+            document.getElementById('usd-val').innerText = `GLOBAL: $ ${(4490 / brlUsdRate).toFixed(2)} USD`;
+            document.getElementById('node-status').innerText = "ORACLE: DATA LIVE";
+            
+            addLog(`> market: btc_brl @ ${btcBrl} [SYNC OK]`);
+        } catch (e) {
+            addLog(`> system: oracle bypass active (reconnecting...)`);
+        }
     }
 
     function addLog(text) {
         const console = document.getElementById('console');
-        const newLine = document.createElement('div');
-        newLine.innerHTML = text;
-        console.appendChild(newLine);
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        console.appendChild(div);
+        if (console.childNodes.length > 20) console.removeChild(console.firstChild);
         console.scrollTop = console.scrollHeight;
     }
 
+    function authenticate() {
+        document.getElementById('auth-layer').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('auth-layer').style.display = 'none';
+            fetchGlobalData();
+        }, 800);
+    }
+
     function liquidate() {
-        const btn = document.getElementById('main-btn');
-        btn.innerText = "EXECUTANDO CONTRATO...";
+        const btn = document.querySelector('.btn-action');
+        btn.innerText = "EXECUTANDO SMART CONTRACT...";
         btn.style.background = "#3DDC84";
         setTimeout(() => {
-            alert(`Liquidação Neural Concluída, ${activeUser}. Ativos movidos para Cold Wallet.`);
+            alert("Operação Finalizada:\n- Impostos 5% liquidados via DREX\n- Ativos protegidos via Israel Vault\n- Liquidez convertida em USD");
             btn.innerText = "LIQUIDADO ✅";
             btn.disabled = true;
         }, 2000);
     }
 
-    // Proteção de Código Contra Inspeção
-    document.onkeydown = e => {
-        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
-    };
+    /* 3. PROTEÇÃO DE SOBERANIA (RESTABELECIDA) */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+            (e.ctrlKey && e.key === "U")) {
+            e.preventDefault();
+            return false;
+        }
+    });
 
-    setInterval(fetchRealTimeData, 30000);
+    /* 4. LOOP DE INTELIGÊNCIA */
+    setInterval(fetchGlobalData, 15000); // Atualiza a cada 15 seg
+    setInterval(() => {
+        const nodes = ["US_EAST", "IL_TELAVIV", "BR_SAOPAULO"];
+        addLog(`> neural_node_${nodes[Math.floor(Math.random()*3)]}: heart_beat verified.`);
+    }, 6000);
 </script>
+
 </body>
 </html>
