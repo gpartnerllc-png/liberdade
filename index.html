@@ -19,10 +19,9 @@
             font-family: -apple-system, "SF Pro Display", "Roboto", sans-serif;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
-            user-select: none; /* Bloqueia seleção de texto */
+            user-select: none;
         }
 
-        /* FUNDO NEURAL DINÂMICO */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
@@ -107,7 +106,9 @@
         @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body oncontextmenu="return false;"> <canvas id="bg-canvas"></canvas>
+<body oncontextmenu="return false;">
+
+<canvas id="bg-canvas"></canvas>
 <div class="neon-aura"></div>
 
 <div class="app-container">
@@ -141,30 +142,24 @@
     </div>
 
     <div class="parallax-console" id="console">
-        > system: neural_vault_v7_secure online.<br>
-        > awaiting: identity_auth_and_logistics...<br>
+        > system: v8_persistent_vault online.<br>
+        > awaiting: identity_recovery...<br>
     </div>
 
     <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR JORNADA</button>
 </div>
 
 <script>
-    /* 1. TRAVAS DE SEGURANÇA (ANTI-INSPEÇÃO) */
-    document.addEventListener('keydown', function(e) {
-        if (e.key === "F12" || 
-            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
-            (e.ctrlKey && e.key === "u")) {
-            e.preventDefault();
-            return false;
-        }
+    /* 1. TRAVAS DE SEGURANÇA */
+    document.addEventListener('keydown', e => {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "u")) e.preventDefault();
     });
 
-    /* 2. MOTOR DE PARTÍCULAS (REATIVADO) */
+    /* 2. MOTOR DE PARTÍCULAS */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
     function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    
     class Particle {
         constructor() {
             this.x = Math.random() * canvas.width;
@@ -182,17 +177,14 @@
             if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
         }
     }
-
     function createParticles() {
         particles = [];
         for (let i = 0; i < 80; i++) particles.push(new Particle());
     }
-
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => {
-            p.update();
-            p.draw();
+            p.update(); p.draw();
             particles.forEach(p2 => {
                 let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
                 if (dist < 100) {
@@ -203,10 +195,9 @@
         });
         requestAnimationFrame(animate);
     }
-    window.addEventListener('resize', initCanvas); 
-    initCanvas(); createParticles(); animate();
+    window.addEventListener('resize', initCanvas); initCanvas(); createParticles(); animate();
 
-    /* 3. LÓGICA DE IDENTIDADE E CUSTOS CLT */
+    /* 3. LÓGICA DE PERSISTÊNCIA E CLT */
     let saldoAtual = 0;
     let valorHoraCLT = 51.00; 
     let custoPassagem = 0;
@@ -214,6 +205,49 @@
     let timerIA;
     let userName = "";
     let brlToUsdRate = 5.60;
+
+    // RECUPERAÇÃO DE DADOS AO CARREGAR
+    window.onload = () => {
+        const savedData = JSON.parse(localStorage.getItem('sandx_session'));
+        if (savedData) {
+            userName = savedData.name;
+            custoPassagem = savedData.transport;
+            saldoAtual = savedData.balance;
+            isWorking = savedData.working;
+
+            // Pula a tela de login se já tiver dados
+            document.getElementById('auth-layer').style.display = 'none';
+            document.getElementById('user-greeting').innerText = `Olá, ${userName}.`;
+            updateDisplay();
+            fetchOracle();
+
+            if (isWorking) {
+                // Ajusta o saldo baseado no tempo que ficou fora (background simulado)
+                const tempoPassadoSec = (Date.now() - savedData.lastUpdate) / 1000;
+                saldoAtual += (tempoPassadoSec * (valorHoraCLT / 3600));
+                
+                // Reinicia o visual do botão
+                const btn = document.getElementById('main-btn');
+                btn.innerText = "PAUSAR / INTERVALO";
+                btn.style.background = "#ff3b30"; btn.style.color = "#fff";
+                timerIA = setInterval(runNeuralEngine, 1000);
+                addLog("> system: session_restored_active");
+            } else {
+                addLog("> system: session_restored_idle");
+            }
+        }
+    };
+
+    function saveState() {
+        const data = {
+            name: userName,
+            transport: custoPassagem,
+            balance: saldoAtual,
+            working: isWorking,
+            lastUpdate: Date.now()
+        };
+        localStorage.setItem('sandx_session', JSON.stringify(data));
+    }
 
     async function fetchOracle() {
         try {
@@ -227,58 +261,48 @@
 
     function authenticate() {
         let tempName = prompt("Digite seu Nome para Identificação:");
-        if (tempName === null || tempName.trim() === "") {
-            alert("ERRO: Autenticação cancelada. Identidade obrigatória.");
-            return; 
-        }
+        if (!tempName) return;
 
-        let tempPassagem = prompt("Digite o custo total de passagem do dia (R$):", "33.00");
-        if (tempPassagem === null || tempPassagem.trim() === "" || isNaN(tempPassagem)) {
-            alert("ERRO: Definição de logística obrigatória.");
-            return;
-        }
+        let tempPassagem = prompt("Digite o custo total de passagem (R$):", "33.00");
+        if (!tempPassagem || isNaN(tempPassagem)) return;
 
         userName = tempName;
         custoPassagem = parseFloat(tempPassagem);
-        saldoAtual = -custoPassagem; 
+        saldoAtual = -custoPassagem;
 
         document.getElementById('auth-layer').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('auth-layer').style.display = 'none';
             document.getElementById('user-greeting').innerText = `Olá, ${userName}.`;
-            document.getElementById('work-status').innerText = `R$ -${custoPassagem.toFixed(2)} (TRANS)`;
             updateDisplay();
             fetchOracle();
-            addLog(`> nfc_auth: ${userName.toLowerCase()}_key_active`);
-            addLog(`> logistics: initial_deficit R$ ${custoPassagem}`);
+            saveState();
+            addLog(`> nfc_auth: welcome_soberano`);
         }, 800);
     }
 
     function toggleWork() {
         const btn = document.getElementById('main-btn');
-        const statusBox = document.getElementById('work-status');
-        
         if (!isWorking) {
             isWorking = true;
             btn.innerText = "PAUSAR / INTERVALO";
             btn.style.background = "#ff3b30"; btn.style.color = "#fff";
-            statusBox.style.color = "var(--neon-green)";
-            addLog(`> work_session: active [CLT_MODE]`);
             timerIA = setInterval(runNeuralEngine, 1000);
+            addLog(`> work_session: active`);
         } else {
             isWorking = false;
             btn.innerText = "RETORNAR AO TRABALHO";
             btn.style.background = "#fff"; btn.style.color = "#000";
-            statusBox.innerText = "INTERVALO"; statusBox.style.color = "#ffcc00";
-            addLog(`> work_session: paused`);
             clearInterval(timerIA);
+            addLog(`> work_session: paused`);
         }
+        saveState();
     }
 
     function runNeuralEngine() {
-        const ganhoPorSegundo = valorHoraCLT / 3600;
-        saldoAtual += ganhoPorSegundo;
+        saldoAtual += (valorHoraCLT / 3600);
         updateDisplay();
+        saveState(); // Salva a cada segundo para garantir persistência
     }
 
     function updateDisplay() {
@@ -289,8 +313,13 @@
         const usdVal = Math.max(0, saldoAtual) / brlToUsdRate;
         document.getElementById('usd-val').innerText = `CONVERSÃO IA: $ ${usdVal.toFixed(2)} USD`;
         
+        const statusBox = document.getElementById('work-status');
         if(isWorking) {
-            document.getElementById('work-status').innerText = saldoAtual < 0 ? "RECUPERANDO CUSTO" : "ONLINE (LUCRO)";
+            statusBox.innerText = saldoAtual < 0 ? "RECUPERANDO CUSTO" : "ONLINE (LUCRO)";
+            statusBox.style.color = "var(--neon-green)";
+        } else {
+            statusBox.innerText = "OFFLINE / PAUSA";
+            statusBox.style.color = "#ffcc00";
         }
     }
 
@@ -303,8 +332,6 @@
 document.addEventListener('keydown', e => {
         if (e.key === "F12" || (e.ctrlKey && e.shiftKey && "IJC".includes(e.key)) || (e.ctrlKey && e.key === "U")) e.preventDefault();
     });
-
-    setInterval(fetchOracleData, 60000);
     setInterval(fetchOracle, 60000);
 </script>
 </body>
