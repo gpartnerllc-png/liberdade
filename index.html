@@ -21,21 +21,37 @@
             overflow: hidden;
         }
 
-        /* Fundo Neural Vivo (Simulação de GPU Clusters) */
+        /* FUNDO NEON COM BRILHO PULSANTE (SEM ALTERAR INFRA) */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
+        /* Camada de luz neon periférica */
+        #bg-canvas::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 140%; height: 140%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center, rgba(61, 220, 132, 0.1) 0%, transparent 60%);
+            animation: neonPulse 4s infinite ease-in-out;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { opacity: 0.3; filter: blur(60px); }
+            50% { opacity: 0.7; filter: blur(100px); }
+        }
+
         /* Frame do App (Proporção iPhone 16 Pro) */
         .app-container {
             width: 380px; height: 820px;
-            background: rgba(10, 10, 10, 0.7);
+            background: rgba(10, 10, 10, 0.75);
             backdrop-filter: var(--blur);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 55px;
             position: relative; overflow: hidden;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9), 0 0 30px rgba(61, 220, 132, 0.05);
             animation: boot 1s ease-out;
         }
 
@@ -67,10 +83,11 @@
         }
 
         .main-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0));
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
             margin: 0 25px; padding: 30px; border-radius: 35px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
             text-align: center;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.02);
         }
 
         .balance-title { font-size: 10px; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; }
@@ -99,6 +116,7 @@
             width: 85%; padding: 22px; border-radius: 35px;
             background: #fff; color: #000; border: none; font-weight: 900;
             cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(61, 220, 132, 0.2);
         }
 
         .btn-action:active { scale: 0.95; background: var(--neon-green); }
@@ -115,8 +133,8 @@
 <div class="app-container">
     <div id="auth-layer" onclick="authenticate()">
         <div class="face-id-scanner"></div>
-        <p style="margin-top: 30px; font-weight: 200; letter-spacing: 1px;">Sovereign ID Required</p>
-        <p style="color: var(--neon-green); font-size: 11px;">Tap to verify</p>
+        <p style="margin-top: 30px; font-weight: 200; letter-spacing: 1px;">SandX ID</p>
+        <p style="color: var(--neon-green); font-size: 11px;">Verify</p>
     </div>
 
     <div class="header">
@@ -154,7 +172,6 @@
 </div>
 
 <script>
-    // Configurações do Oráculo SandxCDD
     let baseValue = 4490.00;
     
     function authenticate() {
@@ -164,7 +181,6 @@
     }
 
     function updateMetrics() {
-        // Simula a IA recalculando com base no valor hora do governo
         const console = document.getElementById('console');
         const lines = [
             `> oracle_update: btc_price synced.`,
@@ -193,10 +209,8 @@
         }, 1500);
     }
 
-    // Mantém o robô "vivo" e em movimento
     setInterval(updateMetrics, 2500);
 
-    // Proteção de código contra inspeção básica
     document.onkeydown = function(e) {
         if(e.keyCode == 123) return false;
         if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
