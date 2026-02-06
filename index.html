@@ -19,9 +19,10 @@
             font-family: -apple-system, "SF Pro Display", "Roboto", sans-serif;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
+            user-select: none; /* Bloqueia seleção de texto */
         }
 
-        /* FUNDO NEURAL DINÂMICO REATIVADO */
+        /* FUNDO NEURAL DINÂMICO */
         #bg-canvas {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
@@ -106,9 +107,7 @@
         @keyframes boot { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body oncontextmenu="return false;">
-
-<canvas id="bg-canvas"></canvas>
+<body oncontextmenu="return false;"> <canvas id="bg-canvas"></canvas>
 <div class="neon-aura"></div>
 
 <div class="app-container">
@@ -142,15 +141,25 @@
     </div>
 
     <div class="parallax-console" id="console">
-        > system: neural_vault_v6 online.<br>
-        > awaiting: manager_identity_auth...<br>
+        > system: neural_vault_v7_secure online.<br>
+        > awaiting: identity_auth_and_logistics...<br>
     </div>
 
     <button class="btn-action" id="main-btn" onclick="toggleWork()">INICIAR JORNADA</button>
 </div>
 
 <script>
-    /* 1. MOTOR DE PARTÍCULAS (REATIVADO E ESTÁVEL) */
+    /* 1. TRAVAS DE SEGURANÇA (ANTI-INSPEÇÃO) */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+            (e.ctrlKey && e.key === "u")) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    /* 2. MOTOR DE PARTÍCULAS (REATIVADO) */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -197,7 +206,7 @@
     window.addEventListener('resize', initCanvas); 
     initCanvas(); createParticles(); animate();
 
-    /* 2. LÓGICA DE IDENTIDADE E CUSTOS CLT */
+    /* 3. LÓGICA DE IDENTIDADE E CUSTOS CLT */
     let saldoAtual = 0;
     let valorHoraCLT = 51.00; 
     let custoPassagem = 0;
@@ -217,23 +226,21 @@
     }
 
     function authenticate() {
-        // SOLICITAÇÃO DE DADOS OBRIGATÓRIA
         let tempName = prompt("Digite seu Nome para Identificação:");
         if (tempName === null || tempName.trim() === "") {
             alert("ERRO: Autenticação cancelada. Identidade obrigatória.");
-            return; // Interrompe o início automático
+            return; 
         }
 
         let tempPassagem = prompt("Digite o custo total de passagem do dia (R$):", "33.00");
         if (tempPassagem === null || tempPassagem.trim() === "" || isNaN(tempPassagem)) {
             alert("ERRO: Definição de logística obrigatória.");
-            return; // Interrompe o início automático
+            return;
         }
 
-        // Se chegou aqui, os dados foram inseridos
         userName = tempName;
         custoPassagem = parseFloat(tempPassagem);
-        saldoAtual = -custoPassagem; // Inicia negativo com o custo da passagem
+        saldoAtual = -custoPassagem; 
 
         document.getElementById('auth-layer').style.opacity = '0';
         setTimeout(() => {
